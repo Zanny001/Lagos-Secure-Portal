@@ -3,3 +3,5 @@ credentials.json
 lagos_leads.db
 *.db
 *.sqlite3
+crypto.log
+scraper.log
