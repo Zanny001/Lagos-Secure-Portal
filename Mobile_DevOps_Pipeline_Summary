@@ -1,0 +1,26 @@
+
+python3 -c "
+import os
+html_content = '''
+<!DOCTYPE html>
+<html>
+<head><title>Technical Architecture Summary</title></head>
+<body style=\"font-family: sans-serif; padding: 30px; color: #2d3748;\">
+    <h1 style=\"color: #1a365d;\">Full-Stack Mobile Infrastructure Architecture</h1>
+    <p><b>Architect:</b> Elebute Hassan Oluwafemi</p>
+    <hr>
+    <h2>Ecosystem Active Pipeline Matrix</h2>
+    <ul>
+        <li><b>Path A:</b> Lead Generation Scraper (pipeline.py & run_scraper.py)</li>
+        <li><b>Path B:</b> RAM-Isolated RSI Crypto Monitor (crypto_signal_bot.py)</li>
+        <li><b>Path C:</b> Multi-Currency Cryptographic Payment Gate (zannie_brand.py)</li>
+        <li><b>Path D:</b> Academic Assessment Web Portal UI (physics_app.py)</li>
+    </ul>
+</body>
+</html>
+'''
+with open('data/Mobile_DevOps_Pipeline_Summary.html', 'w') as f:
+    f.write(html_content)
+print('[SUCCESS] Technical Architecture Portfolio written cleanly to text markup.')
+"
+

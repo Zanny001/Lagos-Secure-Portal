@@ -1,0 +1,32 @@
+ * Serving Flask app 'zannie_brand'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.205.192.63:5001
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 369-205-657
+127.0.0.1 - - [28/May/2026 12:24:30] "[31m[1mPOST /api/v1/checkout/initialize HTTP/1.1[0m" 401 -
+127.0.0.1 - - [28/May/2026 12:24:31] "[31m[1mPOST /api/v1/checkout/initialize HTTP/1.1[0m" 401 -
+127.0.0.1 - - [28/May/2026 12:24:32] "[31m[1mPOST /api/v1/checkout/initialize HTTP/1.1[0m" 401 -
+127.0.0.1 - - [28/May/2026 12:24:32] "[31m[1mPOST /api/v1/checkout/initialize HTTP/1.1[0m" 429 -
+127.0.0.1 - - [28/May/2026 12:24:32] "[31m[1mPOST /api/v1/checkout/initialize HTTP/1.1[0m" 429 -
+ * Detected change in '/home/userland/Lagos-Secure-Portal/physics_app.py', reloading
+⚠️  [SECURITY BLOCK] Rate limit hit by unauthorized burst from IP: 127.0.0.1
+⚠️  [SECURITY BLOCK] Rate limit hit by unauthorized burst from IP: 127.0.0.1
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 497-332-975
+ * Detected change in '/home/userland/Lagos-Secure-Portal/app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 522-491-747
+ * Detected change in '/home/userland/Lagos-Secure-Portal/app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 114-399-129
+127.0.0.1 - - [28/May/2026 13:32:22] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+127.0.0.1 - - [28/May/2026 13:32:22] "[33mGET /api/v1/admin/sales HTTP/1.1[0m" 404 -
+127.0.0.1 - - [28/May/2026 13:32:25] "[33mGET /api/v1/admin/sales HTTP/1.1[0m" 404 -

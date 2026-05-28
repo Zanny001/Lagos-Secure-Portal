@@ -1,0 +1,22 @@
+{
+    "system": {
+        "workspace_node": "UserLAnd Ubuntu Mobile",
+        "environment": "production"
+    },
+    "database": {
+        "sqlite_path": "lagos_leads.db",
+        "max_log_size_mb": 5.0
+    },
+    "network_ports": {
+        "paystack_gateway_port": 5001,
+        "academic_portal_port": 5002
+    },
+    "currency_rates": {
+        "usd_to_ngn_peg": 1500.00
+    },
+    "endpoints": {
+        "discord_crypto_webhook": "https://discord.com/api/webhooks/mock_crypto_channel_token",
+        "paystack_secret_key": "sk_live_sample_zannie_key_99182",
+        "paystack_webhook_secret": "whsec_zannie_signature_verification_token"
+    }
+}
