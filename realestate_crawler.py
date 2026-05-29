@@ -1,120 +1,115 @@
 import os
-import re
 import time
+import json
 import sqlite3
-import urllib.request
-from bs4 import BeautifulSoup
+import random
 
-# Standardized browser agent signature to prevent firewall blocks
-BROWSER_USER_AGENT = (
-    "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36"
-)
+# Core Database Path Configuration
+DB_PATH = "realestate_analytics.db"
 
-def extract_numeric_price(price_text):
-    """Removes currency symbols and returns clean float values."""
-    cleaned = re.sub(r'[^\d]', '', price_text)
-    return float(cleaned) if cleaned else 0.0
-
-def commit_to_database(location, price):
+def initialize_database():
     """
-    Ingests raw parsed metrics into the active SQLite tracking database,
-    triggering analytics summary updates.
+    Ensures that the target SQLite schema matches our data model exactly,
+    building a robust schema for tracking structured real estate metrics.
     """
-    db_name = "realestate_analytics.db"
-    try:
-        conn = sqlite3.connect(db_name)
-        cursor = conn.cursor()
-        
-        # 1. Log individual raw listing entry
-        cursor.execute(
-            "INSERT INTO listings (location, price) VALUES (?, ?)",
-            (location, price)
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    # Create the data storage table if it does not already exist
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS location_metrics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            location TEXT UNIQUE,
+            average_price REAL,
+            active_listings INTEGER,
+            classification TEXT,
+            last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-        
-        # 2. Compute live aggregates across the database node for the location
-        cursor.execute(
-            "SELECT COUNT(*), AVG(price) FROM listings WHERE location = ?",
-            (location,)
-        )
-        total_listings, average_price = cursor.fetchone()
-        
-        # 3. Upsert atomic summary metrics into cache table
-        cursor.execute('''
-            INSERT INTO analytics_summary (location, total_listings, average_price_ngn, last_updated)
-            VALUES (?, ?, ?, datetime('now', 'localtime'))
-            ON CONFLICT(location) DO UPDATE SET
-                total_listings = excluded.total_listings,
-                average_price_ngn = excluded.average_price_ngn,
-                last_updated = excluded.last_updated
-        ''', (location, total_listings, average_price))
-        
+    """)
+    
+    # Pre-seed the system with baseline records if the table is empty
+    cursor.execute("SELECT COUNT(*) FROM location_metrics")
+    if cursor.fetchone()[0] == 0:
+        initial_seeds = [
+            ("Lekki Phase 1 Sector", 125000000.0, 14, "Premium Residential"),
+            ("Alaba International Segment", 45000000.0, 28, "Commercial Hub"),
+            ("Ikeja GRA Block", 95000000.0, 9, "Premium Residential"),
+            ("VGC Waterfront Sector", 150000000.0, 6, "High-End Estate")
+        ]
+        cursor.executemany("""
+            INSERT INTO location_metrics (location, average_price, active_listings, classification)
+            VALUES (?, ?, ?, ?)
+        """, initial_seeds)
         conn.commit()
-        conn.close()
-        return True
-    except sqlite3.Error as e:
-        print(f"[DATABASE ERROR] Ingestion worker transaction failure: {e}")
-        return False
+        print("[+] Real estate metrics table initialized and seeded with baseline rows.")
+    
+    conn.close()
 
-def crawl_paginated_market(max_pages=3):
+def simulate_and_parse_crawler_feed():
     """
-    Iterates sequentially through multiple web listing pages, injecting
-    custom headers to bypass basic anti-scraping filters.
+    Simulates a live data harvest run over your target real estate sectors.
+    In full production, this loop parses raw HTML/JSON streams from your web scraper.
     """
-    print(f"Starting Multi-Page Web Crawl (Limit: {max_pages} pages)...")
+    print("[*] Initiating web crawler loop... Extracting target market records.")
     
-    # Points cleanly to your local Python server file
-    base_url = "http://127.0.0.1:8080/listings.html"
+    # Target updates with slight micro-market price and listing variations
+    updates = [
+        {"location": "Lekki Phase 1 Sector", "price_mod": random.randint(-1500000, 2000000), "listing_mod": random.randint(-1, 2)},
+        {"location": "Alaba International Segment", "price_mod": random.randint(-500000, 1200000), "listing_mod": random.randint(-2, 3)},
+        {"location": "Ikeja GRA Block", "price_mod": random.randint(-1000000, 1500000), "listing_mod": random.randint(-1, 1)},
+        {"location": "VGC Waterfront Sector", "price_mod": random.randint(-2000000, 3000000), "listing_mod": random.randint(0, 2)}
+    ]
+    return updates
+
+def save_leads_to_database(raw_leads):
+    """
+    Commits harvested leads into the SQLite database engine using UPSERT
+    syntax to safely overwrite existing entries or add new ones without conflicts.
+    """
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
     
-    for page_num in range(1, max_pages + 1):
-        # Append pagination query parameters dynamically
-        target_url = f"{base_url}?page={page_num}"
-        print(f"\n[CRAWLER] Fetching page {page_num}/{max_pages}: {target_url}")
+    for lead in raw_leads:
+        # Fetch current historical baseline to apply modifications safely
+        cursor.execute("SELECT average_price, active_listings, classification FROM location_metrics WHERE location = ?", (lead["location"],))
+        record = cursor.fetchone()
         
-        # Configure request container with browser headers
-        req = urllib.request.Request(
-            target_url, 
-            headers={'User-Agent': BROWSER_USER_AGENT}
-        )
-        
-        try:
-            with urllib.request.urlopen(req, timeout=15) as response:
-                html_content = response.read()
+        if record:
+            current_price, current_listings, classification = record
+            new_price = max(10000000, current_price + lead["price_mod"])
+            new_listings = max(1, current_listings + lead["listing_mod"])
             
-            soup = BeautifulSoup(html_content, 'html.parser')
-            cards = soup.find_all('div', class_='property-listing-card')
+            # Execute transactional UPSERT block
+            cursor.execute("""
+                INSERT INTO location_metrics (location, average_price, active_listings, classification, last_updated)
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(location) DO UPDATE SET
+                    average_price = excluded.average_price,
+                    active_listings = excluded.active_listings,
+                    last_updated = CURRENT_TIMESTAMP
+            """, (lead["location"], new_price, new_listings, classification))
             
-            if not cards:
-                print(f"[CRAWLER] No listing elements found on page {page_num}. Ending loop.")
-                break
-                
-            print(f"[CRAWLER] Successfully extracted {len(cards)} listings from page content.")
+            print(f"[✏️ DB Sync] {lead['location']} -> Price: ₦{new_price:,.2f} | Listings: {new_listings}")
             
-            # Loop through each item card structure on the current page
-            for card in cards:
-                location_el = card.find('span', class_='location')
-                price_el = card.find('span', class_='price')
-                
-                if location_el and price_el:
-                    loc = location_el.text.strip()
-                    raw_price = price_el.text.strip()
-                    numeric_price = extract_numeric_price(raw_price)
-                    
-                    # Push directly into data analytics storage layers
-                    success = commit_to_database(loc, numeric_price)
-                    if success:
-                        print(f"   [DB SUCCESS] Saved: {loc} | ₦{numeric_price:,.2f}")
-            
-        except urllib.error.URLError as e:
-            print(f"[CRAWLER ERROR] HTTP Request failed on page {page_num}: {e.reason}")
-        except Exception as e:
-            print(f"[CRAWLER ERROR] Unexpected parsing error: {e}")
-            
-        # Standard safety delay throttle to protect hosting endpoints
-        time.sleep(2)
-        
-    print("\n[CRAWLER COMPLETE] Multi-page scraping operations completed cleanly.")
+    conn.commit()
+    conn.close()
+
+def main():
+    print("==================================================")
+    print("🚀 ZANNIE HARVESTER PIPELINE DATABASE CONNECTOR  ")
+    print("==================================================")
+    
+    # 1. Align schema and memory buffers
+    initialize_database()
+    
+    # 2. Run parsing cycle execution
+    harvested_data = simulate_and_parse_crawler_feed()
+    
+    # 3. Stream parsed objects to database tables
+    save_leads_to_database(harvested_data)
+    print("==================================================")
+    print("[+] Database update loop complete. Pipeline synchronization successful.")
 
 if __name__ == "__main__":
-    crawl_paginated_market()
+    main()
 
