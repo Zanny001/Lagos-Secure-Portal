@@ -7,3 +7,16 @@ crypto.log
 scraper.log
 crypto.log
 scraper.log
+
+# Block Python compiled bytecode cache directories
+__pycache__/
+*.pyc
+
+# Block all system, framework, and daemon background log files
+*.log
+logs/
+
+# Block localized infrastructure tarball backups
+backups/
+*.tar.gz
+

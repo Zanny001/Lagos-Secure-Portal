@@ -1,0 +1,69 @@
+==================================================================
+              ZANNIE ACADEMIC PREPARATION TUTORIALS
+                  DYNAMIC KINEMATICS PROBLEM SET
+==================================================================
+Curriculum Standards: IGCSE / WAEC / OCR GCSE Physics
+Date Generated: 2026-05-29
+Instructor: Elebute Hassan Oluwafemi
+
+INSTRUCTIONS: 
+- Show all formulas used clearly.
+- State your answers to 2 decimal places with correct SI units.
+
+------------------------------------------------------------------
+
+QUESTION 1 [4 Marks]
+A vehicle starts from rest and accelerates uniformly down a straight track 
+at a rate of 4.7 m/s². Calculate the total displacement of the vehicle 
+by the time its speedometer registers exactly 24 m/s.
+------------------------------------------------------------------
+
+QUESTION 2 [4 Marks]
+A motorcycle starts from rest and accelerates uniformly down a straight track 
+at a rate of 4.4 m/s². Calculate the total displacement of the motorcycle 
+by the time its speedometer registers exactly 24 m/s.
+------------------------------------------------------------------
+
+QUESTION 3 [4 Marks]
+A electric sedan starts from rest and accelerates uniformly down a straight track 
+at a rate of 3.4 m/s². Calculate the total displacement of the electric sedan 
+by the time its speedometer registers exactly 24 m/s.
+------------------------------------------------------------------
+
+
+==================================================================
+                  OFFICIAL SOLUTION METHODOLOGY KEY
+==================================================================
+
+SOLUTION FOR QUESTION 1:
+1. Identify Knowns: u = 0 m/s, a = 4.7 m/s², v = 24 m/s
+2. Formula Selection: v² = u² + 2as
+3. Algebraic Rearrangement: s = (v² - u²) / 2a
+4. Calculation:
+   s = (24² - 0²) / (2 * 4.7)
+   s = 576 / 9.4
+   s = 61.28 meters
+[M1 for formula, M1 for substitution, A1 for calculation, A1 for units 'm']
+------------------------------------------------------------------
+
+SOLUTION FOR QUESTION 2:
+1. Identify Knowns: u = 0 m/s, a = 4.4 m/s², v = 24 m/s
+2. Formula Selection: v² = u² + 2as
+3. Algebraic Rearrangement: s = (v² - u²) / 2a
+4. Calculation:
+   s = (24² - 0²) / (2 * 4.4)
+   s = 576 / 8.8
+   s = 65.45 meters
+[M1 for formula, M1 for substitution, A1 for calculation, A1 for units 'm']
+------------------------------------------------------------------
+
+SOLUTION FOR QUESTION 3:
+1. Identify Knowns: u = 0 m/s, a = 3.4 m/s², v = 24 m/s
+2. Formula Selection: v² = u² + 2as
+3. Algebraic Rearrangement: s = (v² - u²) / 2a
+4. Calculation:
+   s = (24² - 0²) / (2 * 3.4)
+   s = 576 / 6.8
+   s = 84.71 meters
+[M1 for formula, M1 for substitution, A1 for calculation, A1 for units 'm']
+------------------------------------------------------------------

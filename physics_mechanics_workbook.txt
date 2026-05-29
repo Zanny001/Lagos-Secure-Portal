@@ -1,0 +1,56 @@
+==================================================================
+                 ZANY ACADEMIC PREPARATION TUTORIALS
+               PHYSICS CURRICULUM SERIES: MECHANICS I
+==================================================================
+Curriculum Standards: IGCSE Physics (0625) / WAEC Higher Tier
+Focus Area: Equations of Motion & Vector Dynamics
+Document Reference: PHYS/MEC/01
+
+[SECTION A: LINEAR KINEMATICS - 5 MARKS]
+1. A test vehicle starts from rest at a local checkpoint and accelerates 
+   uniformly along a straight road at a rate of 3.5 m/s² for a duration 
+   of 8.0 seconds. 
+   
+   Calculate:
+   (a) The final velocity attained by the vehicle at the 8.0s mark. [2 Marks]
+   (b) The total linear distance covered during this acceleration phase. [3 Marks]
+
+[SECTION B: VECTOR DYNAMICS & FORCES - 5 MARKS]
+2. A cargo crate of mass 10.0 kg rests on a smooth, frictionless horizontal 
+   surface. A haulage rope pulls the crate with a constant force of 50.0 N 
+   directed at an angle of 30.0° above the horizontal plane.
+   
+   Calculate:
+   (a) The horizontal component of the pulling force acting on the crate. [2 Marks]
+   (b) The resulting horizontal acceleration of the crate across the surface. [3 Marks]
+
+==================================================================
+              OFFICIAL MARKING SCHEME & SOLUTION KEY
+==================================================================
+
+SOLUTION TO QUESTION 1:
+(a) Find final velocity (v) using: v = u + at
+    Given: initial velocity (u) = 0 m/s, acceleration (a) = 3.5 m/s², time (t) = 8.0 s
+    v = 0 + (3.5 * 8.0)
+    v = 28.0 m/s                                         [Formula: C1, Answer: A1]
+
+(b) Find distance (s) using: s = ut + 0.5at²  (or v² = u² + 2as)
+    s = (0 * 8.0) + 0.5 * 3.5 * (8.0)²
+    s = 0 + 0.5 * 3.5 * 64
+    s = 112.0 meters                                     [Formula: C1, Answer: A2]
+
+
+SOLUTION TO QUESTION 2:
+(a) Horizontal Force Component (Fx) = F * cos(θ)
+    Fx = 50.0 * cos(30.0°)
+    Fx = 50.0 * 0.8660
+    Fx = 43.30 N                         [Formula: C1, Answer: A1]
+
+(b) Acceleration (a) using Newton's Second Law: Fx = m * a
+    a = Fx / m
+    a = 43.30 / 10.0
+    a = 4.33 m/s²                           [Formula: C1, Answer: A2]
+
+------------------------------------------------------------------
+                     END OF EXAM BLUEPRINT
+==================================================================

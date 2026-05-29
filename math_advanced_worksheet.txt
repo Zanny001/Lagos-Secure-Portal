@@ -1,0 +1,28 @@
+==================================================================
+                 ZANY ACADEMIC PREPARATION TUTORIALS
+                ADVANCED ALGEBRA WORKBOOK: SERIES II
+==================================================================
+Curriculum Standards: IGCSE (Extended) / WAEC General Mathematics
+Focus Area: Systems of Non-Linear Equations & Radical Mechanics
+Document Reference: MATH/ALG/SR2
+
+[SECTION A: SIMULTANEOUS SYSTEMS - 6 MARKS EACH]
+Solve the following systems of equations analytically. Show all algebraic 
+substitution steps, factorization trees, and final coordinate pairs.
+
+1.  y = 2x² - 5x + 3
+    y = 3x - 1
+
+2.  x² + y² = 25
+    2x - y = 5
+
+[SECTION B: RADICAL EQUATIONS - 4 MARKS EACH]
+Isolate the radical expressions and solve for the real roots of x. 
+Ensure you verify your answers against extraneous solutions.
+
+3.  √(3x + 4) = x - 2
+4.  2√(x + 5) - x = 2
+
+------------------------------------------------------------------
+                     END OF ASSESSMENT SHEET
+==================================================================
