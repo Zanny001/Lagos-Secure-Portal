@@ -1,10 +1,17 @@
-==================================================================
+import os
+import time
+
+def build_math_material():
+    print("[*] Initializing generation of curriculum-aligned mathematics sheets...")
+    timestamp = time.strftime('%B %Y')
+
+    math_content = f"""==================================================================
               ZANNIE ACADEMIC PREPARATION TUTORIALS
             ADVANCED MATHEMATICS: TRIGONOMETRY & PROBABILITY
 ==================================================================
 Topic Focus: Non-Right-Angled Triangles & Discrete Probability Distributions
 Curriculum Standards: IGCSE / WAEC / International Foundation Standard
-Date: May 2026
+Date: {timestamp}
 Instructor: Elebute Hassan Oluwafemi
 
 ------------------------------------------------------------------
@@ -82,3 +89,14 @@ ANSWERS TO PART B:
        E(X) = 0 + 0.6 + 1.2 = 1.8. [4 Marks]
    (c) E(X) represents the theoretical long-run average score obtained per spin if the spinner were spun an infinite number of times. [3 Marks]
 ==================================================================
+"""
+
+    # Save the compiled lesson sheet cleanly to your workspace
+    output_filename = "math_advanced_worksheet.txt"
+    with open(output_filename, "w") as f:
+        f.write(math_content.strip())
+    print(f"[+] Successfully compiled: {output_filename}")
+
+if __name__ == "__main__":
+    build_math_material()
+
