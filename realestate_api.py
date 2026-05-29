@@ -5,6 +5,14 @@ import os
 app = Flask(__name__)
 DB_NAME = 'realestate_analytics.db'
 
+# Automatically append CORS security clearance headers to every API response
+@app.after_request
+def apply_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    return response
+
 def get_data_from_db():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     db_path = os.path.join(current_dir, DB_NAME)
