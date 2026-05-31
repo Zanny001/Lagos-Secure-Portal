@@ -62,7 +62,13 @@
             { location: "VGC Waterfront Sector", price: 150000000, listings: 6, class: "High-End Estate" }
         ];
 
-        const API_ENDPOINT = "https://modern-worlds-repair.loca.lt/api/metrics"; //
+        // ==============================================================================
+        // CONFIGURATION: SET CURRENT BACKEND TUNNEL URL HERE
+        // ==============================================================================
+        // Run 'cat realestate_api_tunnel.log' to get your active backend proxy address.
+        const CURRENT_BACKEND_TUNNEL = "https://nasty-memes-invite.loca.lt"; 
+
+        const API_ENDPOINT = `${CURRENT_BACKEND_TUNNEL}/api/metrics`;
 
         function renderCards(data) {
             const grid = document.getElementById("metricsGrid");
