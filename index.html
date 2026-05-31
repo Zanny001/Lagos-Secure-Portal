@@ -13,6 +13,7 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
+            --accent-red: #ef4444;
         }
 
         * {
@@ -34,7 +35,19 @@
             border-radius: 12px;
             border: 1px solid var(--border-color);
             margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
             text-align: center;
+        }
+
+        @media(min-width: 600px) {
+            header {
+                flex-direction: row;
+                justify-content: space-between;
+                text-align: left;
+            }
         }
 
         header h1 {
@@ -47,6 +60,31 @@
         header p {
             font-size: 0.9rem;
             color: var(--text-muted);
+        }
+
+        .status-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: rgba(51, 65, 85, 0.6);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-red);
+            border-radius: 50%;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .status-dot.online {
+            background-color: var(--accent-green);
+            box-shadow: 0 0 8px var(--accent-green);
         }
 
         .search-container {
@@ -71,7 +109,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 15px;
         }
 
@@ -85,6 +123,7 @@
 
         .metric-card:hover {
             border-color: var(--accent-cyan);
+            transform: translateY(-2px);
         }
 
         .card-header {
@@ -130,14 +169,21 @@
             padding: 30px;
             color: var(--text-muted);
             font-size: 1rem;
+            grid-column: 1 / -1;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>ZANNIE INTEL METRICS HUB</h1>
-        <p>Real-Time Lagos Real Estate & Commercial Sector Analytics</p>
+        <div>
+            <h1>ZANNIE INTEL METRICS HUB</h1>
+            <p>Real-Time Lagos Real Estate & Commercial Sector Analytics</p>
+        </div>
+        <div class="status-container">
+            <div id="statusDot" class="status-dot"></div>
+            <span id="statusText">Verifying Pipeline Status...</span>
+        </div>
     </header>
 
     <div class="search-container">
@@ -145,7 +191,8 @@
     </div>
 
     <div class="stats-grid" id="metricsGrid">
-        </div>
+        <!-- Structural cards dynamically load here -->
+    </div>
 
     <script>
         // High-fidelity fallback database array for seamless client offline resiliency
@@ -191,37 +238,50 @@
         }
 
         async function initMetricsDashboard() {
+            const dot = document.getElementById("statusDot");
+            const text = document.getElementById("statusText");
+
             try {
-                // Fetch live, real-time metrics across your secure public gateway
-                const response = await fetch(API_ENDPOINT, { method: 'GET' });
+                // Fetch live data from secure public gateway link
+                const response = await fetch(API_ENDPOINT, { 
+                    method: 'GET',
+                    headers: { "Bypass-Tunnel-Reminder": "true" }
+                });
+                
                 if (response.ok) {
                     const dynamicData = await response.json();
                     renderCards(dynamicData);
                     window.dashboardCache = dynamicData;
+                    
+                    dot.classList.add("online");
+                    text.innerText = "System Synced & Live";
                     console.log("[+] Live data successfully aggregated from backend tunnel stream.");
                 } else {
-                    throw new Error("Tunnel endpoint returned non-OK status");
+                    throw new Error("Tunnel non-OK response status");
                 }
             } catch (error) {
-                console.log("[-] Backend API link unreachable. Activating uncorrupted local workspace dataset fallback.");
+                console.log("[-] Backend API link unreachable. Activating local workspace dataset fallback.");
                 renderCards(sampleRealEstateData);
                 window.dashboardCache = sampleRealEstateData;
+                
+                dot.classList.remove("online");
+                text.innerText = "Pipeline Offline (Cached)";
             }
         }
 
         function filterSectors() {
             const query = document.getElementById("searchInput").value.toLowerCase();
             const sourceData = window.dashboardCache || sampleRealEstateData;
-            
-            const filtered = sourceData.filter(item => 
-                item.location.toLowerCase().includes(query) || 
+
+            const filtered = sourceData.filter(item =>
+                item.location.toLowerCase().includes(query) ||
                 item.class.toLowerCase().includes(query)
             );
-            
+
             renderCards(filtered);
         }
 
-        // Trigger user interface pipeline rendering immediately upon runtime window loading
+        // Trigger dashboard metrics setup on window load
         window.onload = initMetricsDashboard;
     </script>
 </body>
