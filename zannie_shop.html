@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zannie Fashion International - Secure Checkout</title>
+    <style>
+        :root {
+            --bg-primary: #fafafa;
+            --surface: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --brand: #1e1b4b;
+            --brand-hover: #312e81;
+            --border: #e5e7eb;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg-primary); color: var(--text-main); padding: 16px; display: flex; justify-content: center; }
+        .checkout-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; max-width: 480px; width: 100%; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .header { text-align: center; margin-bottom: 24px; }
+        .header h1 { font-size: 24px; font-weight: 700; color: var(--brand); letter-spacing: -0.025em; }
+        .header p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+        .product-card { border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; background-color: #fcfcfc; }
+        .product-title { font-weight: 600; font-size: 16px; }
+        .product-desc { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
+        .price-display { font-size: 20px; font-weight: 700; color: var(--brand); margin-top: 12px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #374151; }
+        select, input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; outline: none; background-color: #f9fafb; transition: border 0.2s; }
+        select:focus, input:focus { border-color: var(--brand); background-color: var(--surface); }
+        .btn-checkout { width: 100%; padding: 12px; background-color: var(--brand); color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+        .btn-checkout:hover { background-color: var(--brand-hover); }
+        .status-box { margin-top: 16px; padding: 12px; border-radius: 6px; font-size: 13px; display: none; word-break: break-all; }
+        .status-success { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+        .status-error { background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+        .nav-back { display: inline-block; font-size: 13px; color: var(--text-muted); text-decoration: none; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+
+<div class="checkout-container">
+    <a href="index.html" class="nav-back">← Back to Hub</a>
+    
+    <div class="header">
+        <h1>Zannie Luxury</h1>
+        <p>International Checkout Portal</p>
+    </div>
+
+    <div class="product-card">
+        <div class="product-title">Premium Custom Jalabia</div>
+        <div class="product-desc">High-end bespoke tailoring tailored for international shipping.</div>
+        <div class="price-display" id="priceTag">Loading Price...</div>
+    </div>
+
+    <div class="form-group">
+        <label for="currencySelect">Select Your Local Currency</label>
+        <select id="currencySelect" onchange="handleCurrencyChange()">
+            <option value="NGN">NGN - Nigerian Naira (₦)</option>
+            <option value="USD">USD - US Dollar ($)</option>
+            <option value="GBP">GBP - British Pound (£)</option>
+            <option value="EUR">EUR - Euro (€)</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="customerEmail">Email Address</label>
+        <input type="email" id="customerEmail" placeholder="customer@example.com" value="guest@zanniefashion.com">
+    </div>
+
+    <button class="btn-checkout" onclick="processCheckout()">Initialize Secure Payment</button>
+
+    <div id="statusReport" class="status-box"></div>
+</div>
+
+<script>
+    // Configuration pointing directly to the unified workspace architecture endpoint root
+    const API_BASE_URL = window.location.origin;
+    const BASE_PRODUCT_PRICE_NGN = 85000.00; // Base value for the premium jalabia line
+
+    // Dynamic price recalculation module hitting the live exchange rate engine
+    async function handleCurrencyChange() {
+        const targetCurrency = document.getElementById('currencySelect').value;
+        const priceTag = document.getElementById('priceTag');
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/zannie/product-price`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    base_price_ngn: BASE_PRODUCT_PRICE_NGN,
+                    target_currency: targetCurrency
+                })
+            });
+            
+            const data = await response.json();
+            if (data.status === 'success') {
+                const formatter = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: data.target_currency
+                });
+                priceTag.innerText = formatter.format(data.converted_amount);
+            } else {
+                priceTag.innerText = `₦${BASE_PRODUCT_PRICE_NGN.toLocaleString()}`;
+            }
+        } catch (error) {
+            console.error('[-] Pricing localization link failed:', error);
+            priceTag.innerText = `₦${BASE_PRODUCT_PRICE_NGN.toLocaleString()} (Offline)`;
+        }
+    }
+
+    // Secure multi-currency checkout payment processor
+    async function processCheckout() {
+        const email = document.getElementById('customerEmail').value;
+        const currency = document.getElementById('currencySelect').value;
+        const statusReport = document.getElementById('statusReport');
+        
+        if (!email) {
+            showStatus('Please input a valid email address to complete verification items.', 'error');
+            return;
+        }
+
+        showStatus('Contacting secure gateway processing blocks...', 'success');
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/zannie/checkout`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: email,
+                    amount_ngn: BASE_PRODUCT_PRICE_NGN,
+                    currency: currency
+                })
+            });
+
+            const data = await response.json();
+            if (data.status === 'success') {
+                showStatus(`<strong>Success!</strong> Gateway link ready.<br>Redirecting to secure processing node:<br><code style="font-size:11px;">${data.payment_url_mock}</code>`, 'success');
+            } else {
+                showStatus(`Checkout Error: ${data.message}`, 'error');
+            }
+        } catch (error) {
+            showStatus('Network handshake error connecting to underlying payment gateways.', 'error');
+        }
+    }
+
+    function showStatus(msg, type) {
+        const statusReport = document.getElementById('statusReport');
+        statusReport.style.display = 'block';
+        statusReport.className = `status-box status-${type}`;
+        statusReport.innerHTML = msg;
+    }
+
+    // Initialize pricing on window configuration mount
+    window.onload = handleCurrencyChange;
+</script>
+</body>
+</html>
