@@ -18,18 +18,18 @@
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
         body { background-color: var(--bg-dark); color: var(--text-main); padding: 20px; }
-        
+
         header {
             background: linear-gradient(135deg, #3b0764, #1e293b);
             padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);
             margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;
         }
         header h1 { font-size: 1.5rem; color: var(--accent-purple); letter-spacing: 0.5px; }
-        
+
         .status-container { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
         .status-dot { width: 8px; height: 8px; background-color: var(--accent-red); border-radius: 50%; }
         .status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
-        
+
         .back-btn { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 15px; }
         .back-btn:hover { color: var(--accent-purple); }
 
@@ -138,7 +138,7 @@
         <div class="syllabus-sidebar" id="syllabusSidebar">
             <div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 20px;">Loading curriculum index node...</div>
         </div>
-        
+
         <div class="syllabus-viewer-panel" id="syllabusViewer">
             <div class="placeholder-message">Select an academic resource file module from the sidebar index to open the telemetry reader view.</div>
         </div>
@@ -153,8 +153,9 @@
             { name: "Demi", track: "IGCSE Core", average: 85.0, attendance: 94.0 }
         ];
 
-        const API_STUDENTS = "https://modern-worlds-repair.loca.lt/api/students";
-        const API_SYLLABUS = "https://modern-worlds-repair.loca.lt/api/syllabus";
+        // Using relative server pathways avoids breaking when public LocalTunnel URLs cycle
+        const API_STUDENTS = "/api/students";
+        const API_SYLLABUS = "/api/syllabus";
 
         let studentCache = [];
         let syllabusCache = [];
@@ -202,15 +203,14 @@
         }
 
         function viewLessonContent(index) {
-            // Remove active classes from other elements
             document.querySelectorAll('.lesson-nav-item').forEach(el => el.classList.remove('active'));
-            
+
             const activeNav = document.getElementById(`nav-item-${index}`);
             if(activeNav) activeNav.classList.add('active');
 
             const viewer = document.getElementById("syllabusViewer");
             const lesson = syllabusCache[index];
-            
+
             viewer.innerHTML = `
                 <div class="syllabus-content">
                     <div style="font-size:0.8rem; text-transform:uppercase; color:var(--accent-purple); font-weight:bold; margin-bottom:5px;">
@@ -224,7 +224,7 @@
         async function initDashboardPipeline() {
             const dot = document.getElementById("statusDot");
             const text = document.getElementById("statusText");
-            
+
             let studentSuccess = false;
             let syllabusSuccess = false;
 
@@ -247,7 +247,6 @@
                 syllabusCache = await res.json();
                 syllabusSuccess = true;
             } catch (e) {
-                // Inline resilient mock item if system manifest is entirely offline
                 syllabusCache = [{
                     title: "System Local Resiliency Safeguard",
                     subject: "General",
