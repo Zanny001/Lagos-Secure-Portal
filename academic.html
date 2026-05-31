@@ -153,9 +153,14 @@
             { name: "Demi", track: "IGCSE Core", average: 85.0, attendance: 94.0 }
         ];
 
-        // Using relative server pathways avoids breaking when public LocalTunnel URLs cycle
-        const API_STUDENTS = "/api/students";
-        const API_SYLLABUS = "/api/syllabus";
+        // ==============================================================================
+        // CONFIGURATION: SET CURRENT BACKEND TUNNEL URL HERE
+        // ==============================================================================
+        // Run 'cat realestate_api_tunnel.log' to get your active backend proxy address.
+        const CURRENT_BACKEND_TUNNEL = "https://nasty-memes-invite.loca.lt"; 
+
+        const API_STUDENTS = `${CURRENT_BACKEND_TUNNEL}/api/students`;
+        const API_SYLLABUS = `${CURRENT_BACKEND_TUNNEL}/api/syllabus`;
 
         let studentCache = [];
         let syllabusCache = [];
@@ -258,7 +263,7 @@
 
             // Update network link configuration status indicators
             if (studentSuccess && syllabusSuccess) {
-                dot.classList.add("online");
+                dot.className = "online";
                 text.innerText = "All Pipeline Links Synchronized & Live";
             } else {
                 dot.classList.remove("online");
