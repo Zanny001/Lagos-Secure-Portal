@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zannie Academic Performance Suite</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --accent-purple: #a855f7;
+            --accent-green: #4ade80;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --accent-red: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); padding: 20px; }
+        header {
+            background: linear-gradient(135deg, #3b0764, #1e293b);
+            padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);
+            margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
+        }
+        header h1 { font-size: 1.5rem; color: var(--accent-purple); }
+        .status-container { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+        .status-dot { width: 8px; height: 8px; background-color: var(--accent-red); border-radius: 50%; }
+        .status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+        .search-box {
+            width: 100%; padding: 14px; background-color: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 8px; color: var(--text-main); font-size: 1rem; outline: none; margin-bottom: 20px;
+        }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .metric-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 18px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #2d3748; padding-bottom: 8px; }
+        .score-row { font-size: 1.6rem; font-weight: bold; color: var(--accent-green); margin-bottom: 8px; }
+        .back-btn { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 15px; }
+        .back-btn:hover { color: var(--accent-purple); }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">← Back to Main Hub</a>
+    <header>
+        <div>
+            <h1>🎓 ACADEMIC PERFORMANCE PORTAL</h1>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Student Assessment Records</p>
+        </div>
+        <div class="status-container">
+            <div id="statusDot" class="status-dot"></div>
+            <span id="statusText">Connecting...</span>
+        </div>
+    </header>
+
+    <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search students (e.g. Kehinde, Tooki)..." onkeyup="filterStudents()">
+    <div class="stats-grid" id="metricsGrid"></div>
+
+    <script>
+        const fallbackAcademic = [
+            { name: "Kehinde", track: "WAEC Preparatory", average: 88.5, attendance: 95.0 },
+            { name: "Tooki", track: "IGCSE Extended", average: 82.1, attendance: 92.0 },
+            { name: "Odutana Agboola", track: "WAEC Science", average: 79.4, attendance: 88.0 },
+            { name: "Demi", track: "IGCSE Core", average: 85.0, attendance: 94.0 }
+        ];
+
+        const API_ENDPOINT = "https://modern-worlds-repair.loca.lt/api/students"; //
+
+        function renderCards(data) {
+            const grid = document.getElementById("metricsGrid");
+            grid.innerHTML = "";
+            data.forEach(student => {
+                const card = document.createElement("div");
+                card.className = "metric-card";
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span style="font-weight:700; font-size:1.1rem;">${student.name}</span>
+                        <span style="font-size:0.75rem; color:var(--accent-purple); font-weight:bold;">${student.track}</span>
+                    </div>
+                    <div class="score-row">${student.average.toFixed(1)}%</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">Cumulative Attendance: <strong>${student.attendance.toFixed(1)}%</strong></div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        async function init() {
+            const dot = document.getElementById("statusDot");
+            const text = document.getElementById("statusText");
+            try {
+                const res = await fetch(API_ENDPOINT, { headers: { "Bypass-Tunnel-Reminder": "true" } });
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                window.cache = data;
+                dot.classList.add("online"); text.innerText = "Live Connected";
+                renderCards(data);
+            } catch (e) {
+                window.cache = fallbackAcademic;
+                dot.classList.remove("online"); text.innerText = "Offline Cache";
+                renderCards(fallbackAcademic);
+            }
+        }
+
+        function filterStudents() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const filtered = window.cache.filter(item => item.name.toLowerCase().includes(query) || item.track.toLowerCase().includes(query));
+            renderCards(filtered);
+        }
+        window.onload = init;
+    </script>
+</body>
+</html>
+
