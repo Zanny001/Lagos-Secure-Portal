@@ -22,7 +22,7 @@ DISCORD_WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK_URL_HERE"
 
 def dispatch_discord_alert(title, description, color_code, status_fields):
     """
-    Formulates and dispatches a structured rich embed payload alert 
+    Formulates and dispatches a structured rich embed payload alert
     directly to your Discord channel via the webhook link.
     """
     if not DISCORD_WEBHOOK_URL or "YOUR_DISCORD_WEBHOOK" in DISCORD_WEBHOOK_URL:
@@ -60,7 +60,7 @@ def dispatch_discord_alert(title, description, color_code, status_fields):
         conn.request("POST", path, body=json_data, headers=headers)
         response = conn.getresponse()
         conn.close()
-        
+
         if response.status in [200, 204]:
             print("[+] Diagnostic alert pushed successfully to Discord channel.")
         else:
@@ -91,20 +91,25 @@ def inspect_active_processes():
 
 def run_system_diagnostic():
     print(f"\n{BOLD}=== ZANNIE HUB SYSTEM HEALTH DIAGNOSTIC ==={RESET}\n")
-    
+
     # 1. Audit Checks
     api_process_active = inspect_active_processes()
     root_status, root_data = check_local_endpoint("/")
     re_status, _ = check_local_endpoint("/api/metrics")
     ac_status, _ = check_local_endpoint("/api/students")
-    
-    # Formulate localized logging statuses for text readout
-    print(f"[*] Process Status: {GREEN'RUNNING' if api_process_active else RED'OFFLINE'}{RESET}")
-    print(f"[*] Base Port Connection: {GREEN'CONNECTED' if root_status == 200 else RED'UNREACHABLE'}{RESET}")
-    
+
+    # Formulate localized logging statuses for text readout safely
+    status_text = "RUNNING" if api_process_active else "OFFLINE"
+    status_color = GREEN if api_process_active else RED
+    print(f"[*] Process Status: {status_color}{status_text}{RESET}")
+
+    port_text = "CONNECTED" if root_status == 200 else "UNREACHABLE"
+    port_color = GREEN if root_status == 200 else RED
+    print(f"[*] Base Port Connection: {port_color}{port_text}{RESET}")
+
     # Evaluate global pipeline stability
     system_healthy = api_process_active and (root_status == 200) and (re_status == 200) and (ac_status == 200)
-    
+
     # 2. Compile Discord Fields Payload Matrix
     status_fields = [
         {"name": "Background API Daemon", "value": "🟢 Active running" if api_process_active else "🔴 Process Terminated", "inline": True},
@@ -123,9 +128,9 @@ def run_system_diagnostic():
         print(f"\n{RED}{BOLD}[CRITICAL] Degradation noticed! Triggering channel webhook notification...{RESET}\n")
         # 15158332 maps to an enterprise alert red color layout
         dispatch_discord_alert(
-            "🚨 CRITICAL ALARM: Infrastructure Degradation Detected", 
-            "An internal monitoring audit has caught an offline state or port block in your background processes.", 
-            15158332, 
+            "🚨 CRITICAL ALARM: Infrastructure Degradation Detected",
+            "An internal monitoring audit has caught an offline state or port block in your background processes.",
+            15158332,
             status_fields
         )
         sys.exit(1)
