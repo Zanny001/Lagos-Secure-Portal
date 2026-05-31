@@ -1,6 +1,7 @@
 import os
 import sqlite3
 from flask import Flask, jsonify
+import json
 
 app = Flask(__name__)
 
@@ -84,6 +85,20 @@ def root_status_index():
         "node_owner": "Elebute Hassan Oluwafemi",
         "active_endpoints": ["/api/metrics", "/api/students"]
     })
+
+
+@app.route('/api/syllabus', methods=['GET'])
+def get_syllabus_manifest():
+    try:
+        with open('lessons_manifest.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        response = jsonify(data)
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        return response, 200
+    except Exception as e:
+        response = jsonify({"status": "error", "message": str(e)})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        return response, 500
 
 if __name__ == '__main__':
     print("[*] Launching Zannie Analytics Core Unified API Engine on Port 5005...")
