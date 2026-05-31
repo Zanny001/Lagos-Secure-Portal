@@ -1,12 +1,16 @@
 import os
 import time
+import sqlite3
 
-# Mock Database / Roster Matrix representing active students and their performance metrics
+# Persistent Database Path Configuration
+DB_PATH = "academic_analytics.db"
+
+# Your Master Data Roster Matrix (Preserved and Secured)
 STUDENT_ROSTER = [
     {
         "name": "Kehinde",
         "standard": "IGCSE / WAEC Math Intensive",
-        "scores": [85, 92, 78, 90],  # Recent test percentages
+        "scores": [85, 92, 78, 90],
         "attendance_pct": 100.0,
         "tutor_remarks": "Demonstrates excellent problem-solving speed. Quadratic functions masterclass completed with highly stellar performance."
     },
@@ -33,33 +37,61 @@ STUDENT_ROSTER = [
     }
 ]
 
-def generate_student_reports():
-    """
-    Processes the roster metrics, calculates structural averages, 
-    and outputs polished, studio-grade progress report sheets to disk.
-    """
+def init_academic_db():
+    """Initializes the database schema for tracking persistent tracking trends."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS student_metrics (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            student_name TEXT UNIQUE,
+            syllabus_type TEXT,
+            average_score REAL,
+            attendance_rate REAL,
+            last_evaluated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+def save_and_generate_reports():
+    """Processes roster metrics, saves to SQLite, and compiles text report sheets."""
     timestamp = time.strftime('%Y-%m-%d')
     current_dir = os.path.dirname(os.path.abspath(__file__))
     
-    print("Processing academic records and compiling reports...")
-    
+    init_academic_db()
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    print("[*] Processing academic records and compiling reports...")
+
     for student in STUDENT_ROSTER:
         name = student["name"]
         standard = student["standard"]
         scores = student["scores"]
         attendance = student["attendance_pct"]
         remarks = student["tutor_remarks"]
-        
-        # Calculate cumulative metrics
+
         avg_score = sum(scores) / len(scores)
-        
+
         # Assign structural grade boundaries
         if avg_score >= 85: grade = "A* (Excellent Execution)"
         elif avg_score >= 75: grade = "A (Highly Proficient)"
         elif avg_score >= 65: grade = "B (Solid Competence)"
         elif avg_score >= 50: grade = "C (Developing)"
         else: grade = "D (Requires Revision)"
-        
+
+        # 1. Database Persistent UPSERT Operation
+        cursor.execute("""
+            INSERT INTO student_metrics (student_name, syllabus_type, average_score, attendance_rate, last_evaluated)
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(student_name) DO UPDATE SET
+                average_score = excluded.average_score,
+                attendance_rate = excluded.attendance_rate,
+                last_evaluated = CURRENT_TIMESTAMP
+        """, (name, standard, avg_score, attendance))
+
+        # 2. Build the Studio-Grade Text Report Document
         report_template = f"""==================================================================
                  ACADEMIC PROGRESS PERFORMANCE REPORT
 ==================================================================
@@ -86,18 +118,22 @@ PROFESSIONAL INSTRUCTOR ASSESSMENT & REMARKS:
 Status: Active & Tracking Established.
 ==================================================================
 """
-        
-        # Standardize the filename for your file management system
         safe_filename = f"report_{name.lower().replace(' ', '_')}.txt"
         file_path = os.path.join(current_dir, safe_filename)
-        
+
         try:
             with open(file_path, "w", encoding="utf-8") as f:
                 f.write(report_template)
-            print(f"[SUCCESS] Compiled report file: {safe_filename}")
+            print(f"[SUCCESS] Compiled report file and cached to DB: {safe_filename}")
         except Exception as e:
             print(f"[ERROR] Failed to compile report for {name}: {e}")
 
+    conn.commit()
+    conn.close()
+    print("\n" + "="*65)
+    print("🎓 ACADEMIC MANAGEMENT ENGINE: AUTOMATION SWEEP COMPLETE")
+    print("="*65 + "\n")
+
 if __name__ == "__main__":
-    generate_student_reports()
+    save_and_generate_reports()
 
