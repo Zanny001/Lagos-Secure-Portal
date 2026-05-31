@@ -3,13 +3,16 @@ import time
 import json
 import urllib.request
 
-# Configuration Matrix - Replace with your actual live Discord Webhook URL string
-DISCORD_WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK_URL_HERE"
+# ==============================================================================
+# CONFIGURATION MATRIX
+# ==============================================================================
+# Replace with your actual live Discord Webhook URL string
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1508898451314708691/lZIOfRdo_uoxEXNmHGR-BUop4vPGGmv9klLRvMbURn02FWh_TEOGywscNv8fxv7HagEL"
 
-# Target Tracking Thresholds (Percentage Change Limit)
-VOLATILITY_THRESHOLD_PCT = 2.0  # Trigger alert if asset moves >= 2.0%
+# Target Tracking Threshold (Percentage Change Limit)
+VOLATILITY_THRESHOLD_PCT = 2.0  
 
-# Baseline Asset Tracking Memory Cache
+# Baseline Asset Tracking Memory Cache (Preserved)
 price_cache = {
     "BTC": 0.0,
     "ETH": 0.0,
@@ -25,12 +28,12 @@ asset_metadata = {
 
 def fetch_live_market_prices():
     """
-    Fetches raw, real-time crypto price feeds from CoinGecko's public exchange API 
+    Fetches raw, real-time crypto price feeds from CoinGecko's public exchange API
     using lightweight built-in urllib utilities for mobile environments.
     """
     url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd"
     req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-    
+
     try:
         with urllib.request.urlopen(req, timeout=10) as response:
             if response.status == 200:
@@ -46,7 +49,7 @@ def fetch_live_market_prices():
 
 def dispatch_discord_embed(ticker, old_price, new_price, pct_change):
     """
-    Dispatches a professional, structured embed notification card 
+    Dispatches a professional, structured embed notification card
     with clear directional flags directly to your Discord webhook channel.
     """
     direction = "🚀 SURGE BREAKOUT" if pct_change > 0 else "⚠️ DUMP BREAKOUT"
@@ -76,11 +79,11 @@ def dispatch_discord_embed(ticker, old_price, new_price, pct_change):
     # Format payload structural block
     data = json.dumps(payload).encode('utf-8')
     req = urllib.request.Request(
-        DISCORD_WEBHOOK_URL, 
-        data=data, 
+        DISCORD_WEBHOOK_URL,
+        data=data,
         headers={'User-Agent': 'Mozilla/5.0', 'Content-Type': 'application/json'}
     )
-    
+
     try:
         with urllib.request.urlopen(req) as response:
             if response.status in [200, 204]:
@@ -89,14 +92,17 @@ def dispatch_discord_embed(ticker, old_price, new_price, pct_change):
         print(f"[-] Webhook communication breakdown: {e}")
 
 def monitor_market_loop():
-    print(f"[*] Initializing Zannie Crypto Volatility Monitor Node (Barrier: {VOLATILITY_THRESHOLD_PCT}%)...")
+    print(f"==================================================")
+    print(f"🚀 ZANNIE CRYPTO WATCHDOG ENGINE ACTIVE           ")
+    print(f"[*] Volatility Barrier: {VOLATILITY_THRESHOLD_PCT}% | Scan Interval: 60s")
+    print(f"==================================================")
 
     # Run initial seed scan to populate memory array pointers
     initial_prices = fetch_live_market_prices()
     if initial_prices:
         for ticker in price_cache:
             price_cache[ticker] = initial_prices[ticker]
-        print(f"[+] Initial market baseline cache mapped: {price_cache}")
+        print(f"[+] Initial market baseline cache mapped successfully.")
     else:
         print("[-] Warning: Failed to fetch initial price baseline markers.")
 
@@ -117,13 +123,13 @@ def monitor_market_loop():
             # Calculate precise mathematical percentage variation
             percent_change = ((current_price - last_price) / last_price) * 100
 
-            print(f"[🔍 Scanning] {ticker}: Last=${last_price:,.2f} -> Current=${current_price:,.2f} ({percent_change:+.2f}%)")
+            print(f"[🔍 Scanning] {ticker}: ${current_price:,.2f} ({percent_change:+.2f}%)")
 
             # Check if variation steps past the barrier threshold configuration
             if abs(percent_change) >= VOLATILITY_THRESHOLD_PCT:
                 print(f"[!] Breakout breach detected on {ticker}!")
                 dispatch_discord_embed(ticker, last_price, current_price, percent_change)
-                
+
                 # Update memory cache pointer to prevent redundant alerts
                 price_cache[ticker] = current_price
 
