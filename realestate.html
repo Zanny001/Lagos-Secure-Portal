@@ -26,16 +26,52 @@
         .status-container { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
         .status-dot { width: 8px; height: 8px; background-color: var(--accent-red); border-radius: 50%; }
         .status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
-        .search-box {
-            width: 100%; padding: 14px; background-color: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: 8px; color: var(--text-main); font-size: 1rem; outline: none; margin-bottom: 20px;
+        
+        /* Responsive Filter and Sort Control Hub Style Sheets */
+        .control-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            width: 100%;
         }
+        .search-box {
+            flex: 1;
+            min-width: 160px;
+            padding: 14px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+        }
+        .sort-dropdown {
+            padding: 14px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 1rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            min-width: 160px;
+        }
+
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
         .metric-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 18px; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #2d3748; padding-bottom: 8px; }
         .price-row { font-size: 1.4rem; font-weight: bold; color: var(--accent-cyan); margin-bottom: 8px; }
         .back-btn { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 15px; }
         .back-btn:hover { color: var(--accent-cyan); }
+
+        /* Mobile viewport breakpoint structural adjustment */
+        @media (max-width: 480px) {
+            .control-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -51,23 +87,34 @@
         </div>
     </header>
 
-    <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search sector regions (e.g. Lekki, Alaba)..." onkeyup="filterSectors()">
+    <div class="control-bar">
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search sector regions (e.g. Lekki, Alaba)..." onkeyup="filterAndSortSectors()">
+        
+        <select id="sortControl" class="sort-dropdown" onchange="filterAndSortSectors()">
+            <option value="default">Default View</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="sc_asc">Lowest Service Charge</option>
+            <option value="area_desc">Largest Floor Area</option>
+            <option value="value_asc">Best Value (₦/m²)</option>
+        </select>
+    </div>
+
     <div class="stats-grid" id="metricsGrid"></div>
 
     <script>
+        // Enhanced cache fallbacks populated with dummy parameters to fit the schema layout
         const fallbackRealEstate = [
-            { location: "Lekki Phase 1 Sector", price: 125000000, listings: 14, class: "Premium Residential" },
-            { location: "Alaba International Segment", price: 45000000, listings: 28, class: "Commercial Hub" },
-            { location: "Ikeja GRA Block", price: 95000000, listings: 9, class: "Premium Residential" },
-            { location: "VGC Waterfront Sector", price: 150000000, listings: 6, class: "High-End Estate" }
+            { location: "Lekki Phase 1 Sector", price: 125000000, listings: 14, class: "Premium Residential", service_charge: 2500000, total_area_sqm: 400, price_per_sqm: 312500 },
+            { location: "Alaba International Segment", price: 45000000, listings: 28, class: "Commercial Hub", service_charge: 0, total_area_sqm: 120, price_per_sqm: 375000 },
+            { location: "Ikeja GRA Block", price: 95000000, listings: 9, class: "Premium Residential", service_charge: 1800000, total_area_sqm: 350, price_per_sqm: 271428 },
+            { location: "VGC Waterfront Sector", price: 150000000, listings: 6, class: "High-End Estate", service_charge: 3000000, total_area_sqm: 600, price_per_sqm: 250000 }
         ];
 
         // ==============================================================================
         // CONFIGURATION: SET CURRENT BACKEND TUNNEL URL HERE
         // ==============================================================================
-        // Run 'cat realestate_api_tunnel.log' to get your active backend proxy address.
-        const CURRENT_BACKEND_TUNNEL = "https://nasty-memes-invite.loca.lt"; 
-
+        const CURRENT_BACKEND_TUNNEL = "https://nasty-memes-invite.loca.lt";
         const API_ENDPOINT = `${CURRENT_BACKEND_TUNNEL}/api/metrics`;
 
         function renderCards(data) {
@@ -75,16 +122,16 @@
             grid.innerHTML = "";
             data.forEach(item => {
                 // Formatting sub-metrics safely with sensible fallbacks
-                const scText = item.service_charge && item.service_charge > 0 
-                    ? `₦${Number(item.service_charge).toLocaleString()}/yr` 
+                const scText = item.service_charge && item.service_charge > 0
+                    ? `₦${Number(item.service_charge).toLocaleString()}/yr`
                     : "None Reported";
-                
-                const sqmText = item.total_area_sqm 
-                    ? `${Number(item.total_area_sqm).toLocaleString()} sqm` 
+
+                const sqmText = item.total_area_sqm
+                    ? `${Number(item.total_area_sqm).toLocaleString()} sqm`
                     : "N/A";
-                
-                const unitPriceText = item.price_per_sqm 
-                    ? `₦${Number(item.price_per_sqm).toLocaleString()}/m²` 
+
+                const unitPriceText = item.price_per_sqm
+                    ? `₦${Number(item.price_per_sqm).toLocaleString()}/m²`
                     : "N/A";
 
                 const card = document.createElement("div");
@@ -95,7 +142,7 @@
                         <span style="font-size:0.75rem; color:var(--accent-cyan); font-weight:bold;">${item.class}</span>
                     </div>
                     <div class="price-row">₦${Number(item.price).toLocaleString()}</div>
-                    
+
                     <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #334155; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.8rem;">
                         <div><span style="color: var(--text-muted);">Service Charge:</span> <strong style="color: var(--text-main);">${scText}</strong></div>
                         <div><span style="color: var(--text-muted);">Floor Area:</span> <strong style="color: var(--text-main);">${sqmText}</strong></div>
@@ -117,18 +164,43 @@
                 const data = await res.json();
                 window.cache = data;
                 dot.classList.add("online"); text.innerText = "Live";
-                renderCards(data);
+                filterAndSortSectors();
             } catch (e) {
                 window.cache = fallbackRealEstate;
                 dot.classList.remove("online"); text.innerText = "Offline Cache";
-                renderCards(fallbackRealEstate);
+                filterAndSortSectors();
             }
         }
 
-        function filterSectors() {
+        function filterAndSortSectors() {
             const query = document.getElementById("searchInput").value.toLowerCase();
-            const filtered = window.cache.filter(item => item.location.toLowerCase().includes(query) || item.class.toLowerCase().includes(query));
-            renderCards(filtered);
+            const sortBy = document.getElementById("sortControl").value;
+            
+            // 1. Filter metrics based on search constraints
+            let processedData = window.cache.filter(item => 
+                item.location.toLowerCase().includes(query) || 
+                item.class.toLowerCase().includes(query)
+            );
+
+            // 2. Sort filtered metrics based on selected sorting method
+            if (sortBy === "price_asc") {
+                processedData.sort((a, b) => a.price - b.price);
+            } else if (sortBy === "price_desc") {
+                processedData.sort((a, b) => b.price - a.price);
+            } else if (sortBy === "sc_asc") {
+                processedData.sort((a, b) => (a.service_charge || 0) - (b.service_charge || 0));
+            } else if (sortBy === "area_desc") {
+                processedData.sort((a, b) => (b.total_area_sqm || 0) - (a.total_area_sqm || 0));
+            } else if (sortBy === "value_asc") {
+                processedData.sort((a, b) => {
+                    if (!a.price_per_sqm) return 1;
+                    if (!b.price_per_sqm) return -1;
+                    return a.price_per_sqm - b.price_per_sqm;
+                });
+            }
+
+            // 3. Render sorted and filtered cards to DOM grid
+            renderCards(processedData);
         }
 
         window.onload = init;
