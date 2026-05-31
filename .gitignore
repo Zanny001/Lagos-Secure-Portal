@@ -21,3 +21,4 @@ backups/
 *.tar.gz
 
 node_modules/
+daemon_harvest.log
