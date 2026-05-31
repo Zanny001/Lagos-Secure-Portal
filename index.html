@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zannie Market Intelligence Hub</title>
+    <title>Zannie Intelligence Hub</title>
     <style>
         :root {
             --bg-dark: #0f172a;
             --card-bg: #1e293b;
             --accent-cyan: #38bdf8;
             --accent-green: #4ade80;
+            --accent-purple: #a855f7;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
@@ -87,6 +88,37 @@
             box-shadow: 0 0 8px var(--accent-green);
         }
 
+        /* Navigation Tabs Control Layout */
+        .tab-navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+            border-radius: 6px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-cyan);
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+        }
+
         .search-container {
             margin-bottom: 20px;
         }
@@ -146,8 +178,13 @@
             padding: 4px 8px;
             border-radius: 12px;
             font-weight: bold;
-            background-color: rgba(74, 222, 128, 0.15);
-            color: var(--accent-green);
+            background-color: rgba(56, 189, 248, 0.15);
+            color: var(--accent-cyan);
+        }
+
+        .status-badge.academic-badge {
+            background-color: rgba(168, 85, 247, 0.15);
+            color: var(--accent-purple);
         }
 
         .price-row {
@@ -155,6 +192,10 @@
             font-weight: bold;
             color: var(--accent-cyan);
             margin-bottom: 8px;
+        }
+
+        .price-row.academic-score {
+            color: var(--accent-green);
         }
 
         .meta-row {
@@ -178,16 +219,21 @@
     <header>
         <div>
             <h1>ZANNIE INTEL METRICS HUB</h1>
-            <p>Real-Time Lagos Real Estate & Commercial Sector Analytics</p>
+            <p>Unified Enterprise Analytics & Telemetry Dashboard</p>
         </div>
         <div class="status-container">
             <div id="statusDot" class="status-dot"></div>
-            <span id="statusText">Verifying Pipeline Status...</span>
+            <span id="statusText">Initial Sync Route...</span>
         </div>
     </header>
 
+    <div class="tab-navigation">
+        <button id="realestateTab" class="tab-btn active" onclick="switchModule('realestate')">🏙️ Real Estate Scraper</button>
+        <button id="academicTab" class="tab-btn" onclick="switchModule('academic')">🎓 Academic Analytics</button>
+    </div>
+
     <div class="search-container">
-        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Quick search sectors (e.g. Lekki, Alaba, Ikeja)..." onkeyup="filterSectors()">
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 Quick search metrics..." onkeyup="filterActiveView()">
     </div>
 
     <div class="stats-grid" id="metricsGrid">
@@ -195,30 +241,33 @@
     </div>
 
     <script>
-        // High-fidelity fallback database array for seamless client offline resiliency
-        const sampleRealEstateData = [
+        // High-Fidelity Local Fallbacks for Resiliency
+        const fallbackRealEstate = [
             { location: "Lekki Phase 1 Sector", price: 125000000, listings: 14, class: "Premium Residential" },
             { location: "Alaba International Segment", price: 45000000, listings: 28, class: "Commercial Hub" },
             { location: "Ikeja GRA Block", price: 95000000, listings: 9, class: "Premium Residential" },
             { location: "VGC Waterfront Sector", price: 150000000, listings: 6, class: "High-End Estate" }
         ];
 
-        // Synced perfectly to route live database queries across your active public tunnel
-        const API_ENDPOINT = "https://modern-worlds-repair.loca.lt/api/metrics";
+        const fallbackAcademic = [
+            { name: "Kehinde", track: "WAEC Preparatory", average: 88.5, attendance: 95.0 },
+            { name: "Tooki", track: "IGCSE Extended", average: 82.1, attendance: 92.0 },
+            { name: "Odutana Agboola", track: "WAEC Science", average: 79.4, attendance: 88.0 },
+            { name: "Demi", track: "IGCSE Core", average: 85.0, attendance: 94.0 }
+        ];
 
-        function formatCurrency(value) {
-            return "₦" + value.toLocaleString();
-        }
+        // Core Endpoint Matrix
+        const BASE_URL = "https://modern-worlds-repair.loca.lt";
+        let activeModule = 'realestate';
+        window.moduleDataCache = [];
 
-        function renderCards(data) {
+        function renderRealEstateCards(data) {
             const grid = document.getElementById("metricsGrid");
             grid.innerHTML = "";
-
             if (data.length === 0) {
-                grid.innerHTML = `<div class="no-results">No sectors match your active filtering parameters.</div>`;
+                grid.innerHTML = `<div class="no-results">No sectors match your filtering query.</div>`;
                 return;
             }
-
             data.forEach(item => {
                 const card = document.createElement("div");
                 card.className = "metric-card";
@@ -227,7 +276,7 @@
                         <span class="location-tag">${item.location}</span>
                         <span class="status-badge">${item.class}</span>
                     </div>
-                    <div class="price-row">${formatCurrency(item.price)}</div>
+                    <div class="price-row">₦${Number(item.price).toLocaleString()}</div>
                     <div class="meta-row">
                         <span>Active Listings: <strong>${item.listings}</strong></span>
                         <span>Telemetry: Verified</span>
@@ -237,52 +286,101 @@
             });
         }
 
-        async function initMetricsDashboard() {
+        function renderAcademicCards(data) {
+            const grid = document.getElementById("metricsGrid");
+            grid.innerHTML = "";
+            if (data.length === 0) {
+                grid.innerHTML = `<div class="no-results">No student files match your filtering query.</div>`;
+                return;
+            }
+            data.forEach(item => {
+                const card = document.createElement("div");
+                card.className = "metric-card";
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="location-tag">${item.name}</span>
+                        <span class="status-badge academic-badge">${item.track}</span>
+                    </div>
+                    <div class="price-row academic-score">${item.average.toFixed(1)}%</div>
+                    <div class="meta-row">
+                        <span>Attendance Tracker: <strong>${item.attendance.toFixed(1)}%</strong></span>
+                        <span>Status: Evaluated</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        async function fetchModuleData() {
             const dot = document.getElementById("statusDot");
             const text = document.getElementById("statusText");
+            const endpoint = activeModule === 'realestate' ? `${BASE_URL}/api/metrics` : `${BASE_URL}/api/students`;
 
             try {
-                // Fetch live data from secure public gateway link
-                const response = await fetch(API_ENDPOINT, { 
+                const response = await fetch(endpoint, {
                     method: 'GET',
                     headers: { "Bypass-Tunnel-Reminder": "true" }
                 });
-                
+
                 if (response.ok) {
-                    const dynamicData = await response.json();
-                    renderCards(dynamicData);
-                    window.dashboardCache = dynamicData;
-                    
+                    const data = await response.json();
+                    window.moduleDataCache = data;
                     dot.classList.add("online");
                     text.innerText = "System Synced & Live";
-                    console.log("[+] Live data successfully aggregated from backend tunnel stream.");
+                    
+                    if (activeModule === 'realestate') renderRealEstateCards(data);
+                    else renderAcademicCards(data);
                 } else {
-                    throw new Error("Tunnel non-OK response status");
+                    throw new Error("API non-OK status");
                 }
             } catch (error) {
-                console.log("[-] Backend API link unreachable. Activating local workspace dataset fallback.");
-                renderCards(sampleRealEstateData);
-                window.dashboardCache = sampleRealEstateData;
-                
+                console.log(`[-] Local tunnel endpoint offline. Engaging cache fallbacks.`);
                 dot.classList.remove("online");
                 text.innerText = "Pipeline Offline (Cached)";
+                
+                const fallbackData = activeModule === 'realestate' ? fallbackRealEstate : fallbackAcademic;
+                window.moduleDataCache = fallbackData;
+                if (activeModule === 'realestate') renderRealEstateCards(fallbackData);
+                else renderAcademicCards(fallbackData);
             }
         }
 
-        function filterSectors() {
-            const query = document.getElementById("searchInput").value.toLowerCase();
-            const sourceData = window.dashboardCache || sampleRealEstateData;
-
-            const filtered = sourceData.filter(item =>
-                item.location.toLowerCase().includes(query) ||
-                item.class.toLowerCase().includes(query)
-            );
-
-            renderCards(filtered);
+        function switchModule(targetModule) {
+            activeModule = targetModule;
+            document.getElementById("realestateTab").classList.toggle("active", targetModule === 'realestate');
+            document.getElementById("academicTab").classList.toggle("active", targetModule === 'academic');
+            
+            const searchInput = document.getElementById("searchInput");
+            if (targetModule === 'realestate') {
+                searchInput.placeholder = "🔍 Quick search sectors (e.g. Lekki, Alaba)...";
+            } else {
+                searchInput.placeholder = "🔍 Quick search students (e.g. Kehinde, Tooki)...";
+            }
+            searchInput.value = "";
+            fetchModuleData();
         }
 
-        // Trigger dashboard metrics setup on window load
-        window.onload = initMetricsDashboard;
+        function filterActiveView() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const sourceData = window.moduleDataCache;
+
+            if (activeModule === 'realestate') {
+                const filtered = sourceData.filter(item =>
+                    item.location.toLowerCase().includes(query) ||
+                    item.class.toLowerCase().includes(query)
+                );
+                renderRealEstateCards(filtered);
+            } else {
+                const filtered = sourceData.filter(item =>
+                    item.name.toLowerCase().includes(query) ||
+                    item.track.toLowerCase().includes(query)
+                );
+                renderAcademicCards(filtered);
+            }
+        }
+
+        // Initialize default view on window load
+        window.onload = () => switchModule('realestate');
     </script>
 </body>
 </html>
