@@ -145,6 +145,6 @@ def build_pdf(markdown_path, pdf_path):
     print(f"[SUCCESS] PDF asset generated successfully at: {pdf_path}")
 
 if __name__ == "__main__":
-    src = "/home/userland/Lagos-Secure-Portal/nuclear_physics_igcse.md"
-    dest = "/home/userland/Lagos-Secure-Portal/nuclear_physics_assessment.pdf"
+    src = "/home/userland/Lagos-Secure-Portal/space_physics_igcse.md"
+    dest = "/home/userland/Lagos-Secure-Portal/space_physics_assessment.pdf"
     build_pdf(src, dest)
