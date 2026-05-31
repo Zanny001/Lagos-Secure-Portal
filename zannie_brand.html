@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zannie Designs | Premium Bespoke Apparel</title>
+    <style>
+        :root {
+            --bg-luxury: #0b0f19;
+            --panel-bg: #161f30;
+            --accent-gold: #d4af37;
+            --accent-bronze: #aa7c11;
+            --text-light: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-gold: #2e2511;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Didot', 'Bodoni MT', 'Cinzel', Georgia, serif;
+        }
+
+        body {
+            background-color: var(--bg-luxury);
+            color: var(--text-light);
+            padding: 30px 20px;
+        }
+
+        .brand-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .back-hub {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 25px;
+            transition: color 0.2s;
+        }
+
+        .back-hub:hover {
+            color: var(--accent-gold);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 1px solid var(--border-gold);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            color: var(--accent-gold);
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-style: italic;
+            letter-spacing: 2px;
+        }
+
+        /* Currency Filter Controls */
+        .currency-selector-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            font-family: -apple-system, sans-serif;
+        }
+
+        .currency-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .currency-select {
+            background-color: var(--panel-bg);
+            color: var(--text-light);
+            border: 1px solid var(--accent-gold);
+            padding: 8px 16px;
+            border-radius: 4px;
+            outline: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* Product Showcase Grid */
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            background-color: var(--panel-bg);
+            border: 1px solid rgba(212, 175, 55, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-gold);
+        }
+
+        .product-image-mock {
+            height: 260px;
+            background: linear-gradient(135deg, #111827, #1e293b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--border-gold);
+            position: relative;
+        }
+
+        .product-image-mock::before {
+            content: '✨';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .product-info {
+            padding: 25px;
+        }
+
+        .product-title {
+            font-size: 1.4rem;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .product-desc {
+            font-family: -apple-system, sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-family: -apple-system, sans-serif;
+            font-size: 0.8rem;
+        }
+
+        .specs-table td {
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .specs-label { color: var(--text-muted); }
+        .specs-val { text-align: right; color: var(--accent-gold); font-weight: 500; }
+
+        .price-display {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="brand-container">
+        <a href="index.html" class="back-hub">← Control Center Hub</a>
+        
+        <header>
+            <h1>ZANNIE DESIGNS</h1>
+            <p>Bespoke Tailoring & Luxury Custom Jalabias</p>
+        </header>
+
+        <div class="currency-selector-bar">
+            <span class="currency-label">Select Currency:</span>
+            <select id="currencySelect" class="currency-select" onchange="convertStorefrontPrices()">
+                <option value="NGN">NGN (₦) - Base</option>
+                <option value="USD">USD ($)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="EUR">EUR (€)</option>
+            </select>
+        </div>
+
+        <main class="collection-grid">
+            <div class="product-card">
+                <div class="product-image-mock">ROYAL BESPOKE JALABIA</div>
+                <div class="product-info">
+                    <h3 class="product-title">The Monarch Collection</h3>
+                    <p class="product-desc">Exquisite premium custom-tailored jalabia featuring high-grade ceremonial thread embroidery along the neckline and cuffs.</p>
+                    
+                    <table class="specs-table">
+                        <tr>
+                            <td class="specs-label">Premium Material Blend</td>
+                            <td class="specs-val">100% Superfine Cotton Silk</td>
+                        </tr>
+                        <tr>
+                            <td class="specs-label">Embroidery Type</td>
+                            <td class="specs-val">Handcrafted Filigree Pattern</td>
+                        </tr>
+                    </table>
+                    <div class="price-display" data-base-price="185000">₦185,000</div>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image-mock">MINIMALIST WHITE LINEN</div>
+                <div class="product-info">
+                    <h3 class="product-title">The Meridian Jalabia</h3>
+                    <p class="product-desc">A breathable, ultra-clean aesthetic cut engineered perfectly for high-end casual gatherings and premium daytime utility.</p>
+                    
+                    <table class="specs-table">
+                        <tr>
+                            <td class="specs-label">Premium Material Blend</td>
+                            <td class="specs-val">Pure Italian Polished Linen</td>
+                        </tr>
+                        <tr>
+                            <td class="specs-label">Stitch Density</td>
+                            <td class="specs-val">Reinforced Double-Seam Luxury</td>
+                        </tr>
+                    </table>
+                    <div class="price-display" data-base-price="130000">₦130,000</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // High-Fidelity Static Global Exchange Rates (Base: NGN)
+        const exchangeRates = {
+            NGN: 1.0,
+            USD: 0.00067,  // 1 USD = ~1500 NGN
+            GBP: 0.00052,  // 1 GBP = ~1920 NGN
+            EUR: 0.00062   // 1 EUR = ~1610 NGN
+        };
+
+        const currencySymbols = {
+            NGN: "₦",
+            USD: "$",
+            GBP: "£",
+            EUR: "€"
+        };
+
+        function convertStorefrontPrices() {
+            const selectedCurrency = document.getElementById("currencySelect").value;
+            const rate = exchangeRates[selectedCurrency];
+            const symbol = currencySymbols[selectedCurrency];
+            
+            const priceTags = document.querySelectorAll(".price-display");
+            
+            priceTags.forEach(tag => {
+                const basePrice = parseFloat(tag.getAttribute("data-base-price"));
+                const convertedPrice = basePrice * rate;
+                
+                if (selectedCurrency === "NGN") {
+                    tag.innerText = `${symbol}${convertedPrice.toLocaleString()}`;
+                } else {
+                    // International pricing standard formatting (2 decimal points)
+                    tag.innerText = `${symbol}${convertedPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

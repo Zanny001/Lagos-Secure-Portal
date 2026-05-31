@@ -10,25 +10,118 @@
             --card-bg: #1e293b;
             --accent-blue: #3b82f6;
             --accent-purple: #a855f7;
+            --accent-gold: #d4af37;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border-color: #334155;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text-main); padding: 40px 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .hub-container { max-width: 800px; width: 100%; text-align: center; }
-        h1 { font-size: 2.2rem; margin-bottom: 8px; letter-spacing: -0.5px; background: linear-gradient(to right, #38bdf8, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .subtitle { color: var(--text-muted); margin-bottom: 40px; font-size: 1.1rem; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .portal-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 30px; text-decoration: none; color: var(--text-main); text-align: left; transition: transform 0.2s, border-color 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
-        .portal-card:hover { transform: translateY(-4px); }
-        .portal-card.re:hover { border-color: var(--accent-blue); }
-        .portal-card.ac:hover { border-color: var(--accent-purple); }
-        .portal-title { font-size: 1.4rem; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        .portal-desc { color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; }
-        .launch-txt { font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+        }
+
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text-main); 
+            padding: 40px 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+        }
+
+        .hub-container { 
+            max-width: 1000px; 
+            width: 100%; 
+            text-align: center; 
+        }
+
+        h1 { 
+            font-size: 2.2rem; 
+            margin-bottom: 8px; 
+            letter-spacing: -0.5px; 
+            background: linear-gradient(to right, #38bdf8, #a855f7, #d4af37); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+
+        .subtitle { 
+            color: var(--text-muted); 
+            margin-bottom: 40px; 
+            font-size: 1.1rem; 
+            letter-spacing: 0.5px;
+        }
+
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 20px; 
+        }
+
+        .portal-card { 
+            background-color: var(--card-bg); 
+            border: 1px solid var(--border-color); 
+            border-radius: 12px; 
+            padding: 30px; 
+            text-decoration: none; 
+            color: var(--text-main); 
+            text-align: left; 
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+        }
+
+        .portal-card:hover { 
+            transform: translateY(-4px); 
+        }
+
+        .portal-card.re:hover { 
+            border-color: var(--accent-blue); 
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+        }
+
+        .portal-card.ac:hover { 
+            border-color: var(--accent-purple); 
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.15);
+        }
+
+        .portal-card.zd:hover { 
+            border-color: var(--accent-gold); 
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15);
+        }
+
+        .portal-title { 
+            font-size: 1.4rem; 
+            font-weight: bold; 
+            margin-bottom: 10px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+        }
+
+        .portal-desc { 
+            color: var(--text-muted); 
+            font-size: 0.95rem; 
+            line-height: 1.5; 
+            margin-bottom: 25px; 
+        }
+
+        .launch-txt { 
+            font-size: 0.85rem; 
+            font-weight: bold; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            color: var(--text-muted); 
+            transition: color 0.2s;
+        }
+
         .portal-card.re:hover .launch-txt { color: var(--accent-blue); }
         .portal-card.ac:hover .launch-txt { color: var(--accent-purple); }
+        .portal-card.zd:hover .launch-txt { color: var(--accent-gold); }
     </style>
 </head>
 <body>
@@ -38,22 +131,31 @@
         <p class="subtitle">Unified System Administration Portal</p>
 
         <div class="grid">
-            <!-- Project 1 Link Card -->
+            <!-- Project 1: Real Estate Engine -->
             <a href="realestate.html" class="portal-card re">
                 <div>
-                    <div class="portal-title">🏙️ Real Estate Engine</div>
+                    <div class="portal-title" style="color: var(--accent-blue);">命️ Real Estate Engine</div>
                     <p class="portal-desc">Automated property harvesting matrix tracking valuations, sector classifications, and live portal listings across Lagos.</p>
                 </div>
                 <div class="launch-txt">Launch Platform Node →</div>
             </a>
 
-            <!-- Project 2 Link Card -->
+            <!-- Project 2: Academic Suite -->
             <a href="academic.html" class="portal-card ac">
                 <div>
-                    <div class="portal-title">🎓 Academic Suite</div>
+                    <div class="portal-title" style="color: var(--accent-purple);">🎓 Academic Suite</div>
                     <p class="portal-desc">Student metric manager logging profiles, performance metrics, and progress evaluation summaries dynamically.</p>
                 </div>
                 <div class="launch-txt">Launch Platform Node →</div>
+            </a>
+
+            <!-- Project 3: Zannie Designs Storefront -->
+            <a href="zannie_brand.html" class="portal-card zd">
+                <div>
+                    <div class="portal-title" style="color: var(--accent-gold);">✨ Zannie Designs</div>
+                    <p class="portal-desc">Luxury custom apparel showcase configuring premium fabric matrices, embroidery profiles, and real-time international multi-currency pricing.</p>
+                </div>
+                <div class="launch-txt">Launch Brand Node →</div>
             </a>
         </div>
     </div>
