@@ -42,17 +42,43 @@ def apply_global_cors_headers(response):
 @app.route('/api/metrics', methods=['GET'])
 def get_metrics():
     """
-    Public cross-origin network endpoint serving structured market trends.
-    Preserves original table structure: location_metrics.
+    Public cross-origin network endpoint serving structured market trends,
+    enhanced with hidden service fees and structural area valuation indices.
     """
-    query = "SELECT location, average_price as price, active_listings as listings, classification as class FROM location_metrics"
+    query = """
+        SELECT 
+            location, 
+            average_price as price, 
+            active_listings as listings, 
+            classification as class,
+            service_charge,
+            total_area_sqm,
+            price_per_sqm
+        FROM location_metrics
+    """
     data = query_database(REALESTATE_DB, query)
-    
-    # Fallback placeholder matrix if real estate database is temporarily unseeded
+
+    # Enhanced Fallback placeholder matrix if real estate database is temporarily unseeded
     if not data:
         return jsonify([
-            {"location": "Lekki Phase 1 Sector", "price": 125000000.0, "listings": 14, "class": "Premium Residential"},
-            {"location": "Alaba International Segment", "price": 45000000.0, "listings": 28, "class": "Commercial Hub"}
+            {
+                "location": "Lekki Phase 1 Sector", 
+                "price": 125000000.0, 
+                "listings": 14, 
+                "class": "Premium Residential",
+                "service_charge": 2500000.0,
+                "total_area_sqm": 400.0,
+                "price_per_sqm": 312500.0
+            },
+            {
+                "location": "Alaba International Segment", 
+                "price": 45000000.0, 
+                "listings": 28, 
+                "class": "Commercial Hub",
+                "service_charge": 0.0,
+                "total_area_sqm": 120.0,
+                "price_per_sqm": 375000.0
+            }
         ])
     return jsonify(data)
 
@@ -63,10 +89,10 @@ def get_student_metrics():
     """
     query = "SELECT student_name, syllabus_type, average_score, attendance_rate FROM student_metrics"
     rows = query_database(ACADEMIC_DB, query)
-    
+
     if rows is None:
         return jsonify({"error": "Academic tracker database node unseeded or unreachable"}), 404
-        
+
     payload = []
     for row in rows:
         payload.append({
@@ -83,7 +109,7 @@ def root_status_index():
     return jsonify({
         "status": "online",
         "node_owner": "Elebute Hassan Oluwafemi",
-        "active_endpoints": ["/api/metrics", "/api/students"]
+        "active_endpoints": ["/api/metrics", "/api/students", "/api/syllabus"]
     })
 
 
@@ -93,12 +119,9 @@ def get_syllabus_manifest():
         with open('lessons_manifest.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
         response = jsonify(data)
-        response.headers.add("Access-Control-Allow-Origin", "*")
         return response, 200
     except Exception as e:
-        response = jsonify({"status": "error", "message": str(e)})
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        return response, 500
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     print("[*] Launching Zannie Analytics Core Unified API Engine on Port 5005...")
