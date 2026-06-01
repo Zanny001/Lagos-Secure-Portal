@@ -15,10 +15,22 @@ LOCAL_HOST = "127.0.0.1"
 PORT = 5005
 
 # ==============================================================================
-# DISCORD NOTIFICATION CONFIGURATION
+# DISCORD NOTIFICATION CONFIGURATION (DYNAMIC LOOKUP)
 # ==============================================================================
-# Paste your active Zannie Discord Channel Webhook URL here
-DISCORD_WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK_URL_HERE"
+DISCORD_WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
+
+# Fallback: If not in environment, look inside your secure local .env file
+if not DISCORD_WEBHOOK_URL:
+    env_path = "/home/userland/Lagos-Secure-Portal/.env"
+    if os.path.exists(env_path):
+        with open(env_path, "r") as env_file:
+            for line in env_file:
+                if "DISCORD_WEBHOOK_URL" in line:
+                    try:
+                        # Extract string between quotes cleanly
+                        DISCORD_WEBHOOK_URL = line.split("=")[1].strip().strip('"').strip("'")
+                    except Exception:
+                        pass
 
 def dispatch_discord_alert(title, description, color_code, status_fields):
     """
@@ -29,7 +41,6 @@ def dispatch_discord_alert(title, description, color_code, status_fields):
         print("[!] Discord Alert skipped: Webhook URL unconfigured.")
         return
 
-    # Split webhook URL into host and path components safely
     try:
         url_clean = DISCORD_WEBHOOK_URL.replace("https://", "")
         parts = url_clean.split("/", 1)
@@ -41,11 +52,11 @@ def dispatch_discord_alert(title, description, color_code, status_fields):
 
     payload = {
         "username": "Zannie Core Watchdog",
-        "avatar_url": "https://i.imgur.com/w8N93Zf.png",  # Clean tech avatar
+        "avatar_url": "https://i.imgur.com/w8N93Zf.png",
         "embeds": [{
             "title": title,
             "description": description,
-            "color": color_code,  # Decimal color representation
+            "color": color_code,
             "fields": status_fields,
             "footer": {
                 "text": "Automated Telemetry Node Daemon Monitor"
@@ -69,7 +80,6 @@ def dispatch_discord_alert(title, description, color_code, status_fields):
         print(f"[-] Webhook push execution breakdown: {e}")
 
 def check_local_endpoint(path):
-    """Pings an internal server endpoint path and evaluates its response status."""
     try:
         conn = http.client.HTTPConnection(LOCAL_HOST, PORT, timeout=3)
         conn.request("GET", path)
@@ -82,7 +92,6 @@ def check_local_endpoint(path):
         return None, None
 
 def inspect_active_processes():
-    """Scans the system process tree to see if the core Flask API engine is running."""
     try:
         output = subprocess.check_output(["ps", "aux"]).decode('utf-8')
         return "realestate_api.py" in output
@@ -92,13 +101,11 @@ def inspect_active_processes():
 def run_system_diagnostic():
     print(f"\n{BOLD}=== ZANNIE HUB SYSTEM HEALTH DIAGNOSTIC ==={RESET}\n")
 
-    # 1. Audit Checks
     api_process_active = inspect_active_processes()
     root_status, root_data = check_local_endpoint("/")
     re_status, _ = check_local_endpoint("/api/metrics")
     ac_status, _ = check_local_endpoint("/api/students")
 
-    # Formulate localized logging statuses for text readout safely
     status_text = "RUNNING" if api_process_active else "OFFLINE"
     status_color = GREEN if api_process_active else RED
     print(f"[*] Process Status: {status_color}{status_text}{RESET}")
@@ -107,10 +114,8 @@ def run_system_diagnostic():
     port_color = GREEN if root_status == 200 else RED
     print(f"[*] Base Port Connection: {port_color}{port_text}{RESET}")
 
-    # Evaluate global pipeline stability
     system_healthy = api_process_active and (root_status == 200) and (re_status == 200) and (ac_status == 200)
 
-    # 2. Compile Discord Fields Payload Matrix
     status_fields = [
         {"name": "Background API Daemon", "value": "🟢 Active running" if api_process_active else "🔴 Process Terminated", "inline": True},
         {"name": "Core Root Bound Port", "value": "🟢 Port 5005 Open" if root_status == 200 else "🔴 Port Unreachable", "inline": True},
@@ -118,15 +123,11 @@ def run_system_diagnostic():
         {"name": "Academic Data Endpoint", "value": "✅ Functional (200)" if ac_status == 200 else "❌ Connection Error", "inline": False}
     ]
 
-    # 3. Handle Alert Execution Criteria
     if system_healthy:
         print(f"\n{GREEN}{BOLD}[SUCCESS] Core system parameters are operational.{RESET}\n")
-        # Optional: Uncomment the next line if you want positive sync confirmation on Discord too!
-        # dispatch_discord_alert("🟢 System Status: Normal", "All infrastructure networks are operational.", 3066993, status_fields)
         sys.exit(0)
     else:
         print(f"\n{RED}{BOLD}[CRITICAL] Degradation noticed! Triggering channel webhook notification...{RESET}\n")
-        # 15158332 maps to an enterprise alert red color layout
         dispatch_discord_alert(
             "🚨 CRITICAL ALARM: Infrastructure Degradation Detected",
             "An internal monitoring audit has caught an offline state or port block in your background processes.",
@@ -137,4 +138,3 @@ def run_system_diagnostic():
 
 if __name__ == "__main__":
     run_system_diagnostic()
-
