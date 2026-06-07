@@ -1,14 +1,20 @@
 import sqlite3
 import math
 import requests
+import os
+import markdown
 from datetime import datetime
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, abort
 from config import ACADEMIC_DB, DISCORD_WEBHOOK_URL
 
 # ===================================================================
-# MODULE A: ACADEMIC BLUEPRINT
+# MODULE A: ACADEMIC BLUEPRINT WITH SYLLABUS CAPABILITIES
 # ===================================================================
 academic_bp = Blueprint('academic', __name__)
+
+# Derive absolute path to academic_syllabus folder relative to config layer
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SYLLABUS_DIR = os.path.join(BASE_DIR, "academic_syllabus")
 
 PHYSICS_ANSWER_KEY = {
     1: {"question": "What are the fundamental dimensions of Force?", "topic": "Dimensions & Units", "correct": "A", "options": {"A": "MLT⁻²", "B": "ML²T⁻²", "C": "MLT⁻¹", "D": "M²LT⁻²"}},
@@ -101,6 +107,49 @@ def academic_dashboard_index():
 
     return render_template("academic.html", questions=PHYSICS_ANSWER_KEY, report=None)
 
+# --- DYNAMIC FRONTLINE SYLLABUS BROWSING PROTOCOLS ---
+
+@academic_bp.route('/syllabus')
+def syllabus_index():
+    """Maps the academic_syllabus directory structure for the frontend framework."""
+    tree = {}
+    if os.path.exists(SYLLABUS_DIR):
+        for subject in os.listdir(SYLLABUS_DIR):
+            subject_path = os.path.join(SYLLABUS_DIR, subject)
+            if os.path.isdir(subject_path) and not subject.startswith('.'):
+                tree[subject] = {}
+                for level in os.listdir(subject_path):
+                    level_path = os.path.join(subject_path, level)
+                    if os.path.isdir(level_path) and not level.startswith('.'):
+                        files = [f for f in os.listdir(level_path) if f.endswith('.md')]
+                        tree[subject][level] = files
+                        
+    return render_template("syllabus_browser.html", tree=tree)
+
+@academic_bp.route('/syllabus/view/<subject>/<level>/<filename>')
+def view_syllabus_file(subject, level, filename):
+    """Securely reads, compiles and renders specific markdown templates into clean HTML."""
+    target_path = os.path.abspath(os.path.join(SYLLABUS_DIR, subject, level, filename))
+    safe_base = os.path.abspath(SYLLABUS_DIR)
+    
+    if not target_path.startswith(safe_base) or not os.path.exists(target_path):
+        abort(404, description="Requested academic asset out of scope or missing.")
+        
+    with open(target_path, 'r', encoding='utf-8') as f:
+        md_content = f.read()
+        
+    html_content = markdown.markdown(md_content, extensions=['fenced_code', 'tables'])
+    
+    return render_template(
+        "syllabus_viewer.html", 
+        content=html_content, 
+        title=filename.replace('_template.md', '').replace('_', ' ').title(),
+        subject=subject.upper(),
+        level=level.replace('_', ' ').upper()
+    )
+
+# --- REST OF ORIGINAL API ENDPOINTS ---
+
 @academic_bp.route("/api/academic_data", methods=["GET"])
 def get_academic_analytics():
     try:
@@ -109,21 +158,21 @@ def get_academic_analytics():
         cursor.execute("SELECT student_name, subject, score FROM grades")
         rows = cursor.fetchall()
         conn.close()
-        
+
         raw_map = {}
         for row in rows:
             student, subject, score = row
             if subject not in raw_map: raw_map[subject] = {}
             if student not in raw_map[subject]: raw_map[subject][student] = []
             raw_map[subject][student].append(score)
-            
+
         track_resolver = {
-            "TWIN A": "IGCSE Core", 
-            "TWIN B": "IGCSE Core", 
+            "TWIN A": "IGCSE Core",
+            "TWIN B": "IGCSE Core",
             "DEMI": "WAEC Tracker",
             "FEMI": "Int Foundation Programme"
         }
-        
+
         payload_response = {}
         for subject, students_dict in raw_map.items():
             payload_response[subject] = []
@@ -133,7 +182,7 @@ def get_academic_analytics():
                 variance = sum((x - mean_score) ** 2 for x in scores) / n if n > 0 else 0.0
                 std_deviation = math.sqrt(variance)
                 status = "Excel" if mean_score >= 75.0 else "Stable" if mean_score >= 55.0 else "Intervention"
-                
+
                 payload_response[subject].append({
                     "name": student_name,
                     "track": track_resolver.get(student_name, "General Core Matrix"),
