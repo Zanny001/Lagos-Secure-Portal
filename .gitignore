@@ -1,27 +1,4 @@
-credentials.json
-credentials.json
-lagos_leads.db
 *.db
-*.sqlite3
-crypto.log
-scraper.log
-crypto.log
-scraper.log
-
-# Block Python compiled bytecode cache directories
+*.csv
 __pycache__/
 *.pyc
-
-# Block all system, framework, and daemon background log files
-*.log
-logs/
-
-# Block localized infrastructure tarball backups
-backups/
-*.tar.gz
-
-node_modules/
-daemon_harvest.log
-lessons_manifest.json
-*.pdf
-.env

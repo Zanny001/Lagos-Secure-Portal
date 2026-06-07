@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harvester Core — Lead Matrix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
+        <header class="border-b border-indigo-500/30 pb-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                    Lagos Harvester — Target Matrix
+                </h1>
+                <p class="text-sm text-slate-400 mt-1">Live corporate lead indexing and ingestion pipeline.</p>
+            </div>
+            <div class="flex gap-4 items-center">
+                <a href="/" class="text-sm bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-md transition-colors font-mono">← Back</a>
+                <a href="/leads/download" class="text-sm bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-md transition-colors font-semibold shadow-lg shadow-emerald-500/20">↓ Download CSV</a>
+                <div class="text-xs bg-indigo-900/50 border border-indigo-500/30 px-3 py-2 rounded-md font-mono text-indigo-300">
+                    Targets: {{ leads|length }}
+                </div>
+            </div>
+        </header>
+        <main class="bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-900/50 text-xs uppercase text-slate-400 font-semibold border-b border-slate-700">
+                        <tr>
+                            <th class="px-6 py-4">Corporate Entity</th>
+                            <th class="px-6 py-4">Target Sector</th>
+                            <th class="px-6 py-4">Direct Email Asset</th>
+                            <th class="px-6 py-4">Position / Title</th>
+                            <th class="px-6 py-4 text-right">Ingestion Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/50">
+                        {% for lead in leads %}
+                        <tr class="hover:bg-slate-700/30 transition-colors">
+                            <td class="px-6 py-4 font-medium text-white">{{ lead[0] }}</td>
+                            <td class="px-6 py-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-900 border border-slate-600 text-slate-300">{{ lead[1] }}</span></td>
+                            <td class="px-6 py-4 font-mono text-indigo-400">{{ lead[2] }}</td>
+                            <td class="px-6 py-4 text-slate-400">{{ lead[3] }}</td>
+                            <td class="px-6 py-4 text-right font-mono text-[11px] text-slate-500">{{ lead[4] }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-slate-500">No lead data ingested. Run live_ingestion.py first.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
