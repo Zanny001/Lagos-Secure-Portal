@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Academic Harvester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+    <div class="max-w-6xl mx-auto p-4 md:p-8">
+        <header class="border-b border-indigo-500/30 pb-6 mb-8 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-extrabold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                    Global Academic Matrix
+                </h1>
+                <p class="text-slate-400 mt-1">Tuition-Free Funding & Assistantship Target Pipeline</p>
+            </div>
+            <a href="/" class="text-sm bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-md transition-colors border border-slate-700">← Back to Portal</a>
+        </header>
+
+        <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-xl">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-slate-900/50 text-indigo-400 uppercase tracking-wider text-xs font-bold">
+                        <tr>
+                            <th class="px-6 py-4 border-b border-slate-700">Institution</th>
+                            <th class="px-6 py-4 border-b border-slate-700">Faculty Target</th>
+                            <th class="px-6 py-4 border-b border-slate-700">Role / Title</th>
+                            <th class="px-6 py-4 border-b border-slate-700 text-right">Direct Protocol</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/50">
+                        {% for lead in leads %}
+                        <tr class="hover:bg-slate-700/20 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="font-semibold text-white">{{ lead['Institution'] }}</div>
+                                <div class="text-xs text-slate-400">{{ lead['Department'] }}</div>
+                            </td>
+                            <td class="px-6 py-4 font-medium text-slate-200">{{ lead['Faculty Name'] }}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 bg-slate-900 border border-slate-600 rounded text-xs text-slate-300">
+                                    {{ lead['Title/Role'] }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <a href="mailto:{{ lead['Contact Email'] }}" class="text-indigo-400 hover:text-indigo-300 font-mono text-sm tracking-tight transition-colors">
+                                    {{ lead['Contact Email'] }}
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="px-6 py-8 text-center text-slate-500 italic">
+                                Awaiting data ingestion. Execute the university scraper to populate the matrix.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
