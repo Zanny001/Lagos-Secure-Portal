@@ -4,15 +4,15 @@ import requests
 import os
 import markdown
 from datetime import datetime
-from flask import Blueprint, render_template, request, jsonify, abort
+from flask import Blueprint, render_template, request, jsonify, abort, send_file
 from config import ACADEMIC_DB, DISCORD_WEBHOOK_URL
+from fpdf import FPDF
 
 # ===================================================================
-# MODULE A: ACADEMIC BLUEPRINT WITH SYLLABUS CAPABILITIES
+# MODULE A: ACADEMIC BLUEPRINT WITH SYLLABUS & PDF CAPABILITIES
 # ===================================================================
 academic_bp = Blueprint('academic', __name__)
 
-# Derive absolute path to academic_syllabus folder relative to config layer
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SYLLABUS_DIR = os.path.join(BASE_DIR, "academic_syllabus")
 
@@ -28,6 +28,19 @@ PHYSICS_ANSWER_KEY = {
     9: {"question": "Which of the following physical quantities is completely dimensionless?", "topic": "Dimensions & Units", "correct": "B", "options": {"A": "Acceleration", "B": "Refractive Index", "C": "Density", "D": "Speed"}},
     10: {"question": "The angular velocity of a particle moving in a circle of radius 2m with a linear speed of 10m/s is:", "topic": "Circular Motion", "correct": "D", "options": {"A": "20 rad/s", "B": "0.2 rad/s", "C": "2 rad/s", "D": "5 rad/s"}}
 }
+
+class AcademicPDF(FPDF):
+    def header(self):
+        self.set_font("Helvetica", "B", 10)
+        self.set_text_color(100, 116, 139)
+        self.cell(0, 10, "Zannie Academic Portal — STEM Instructional Resource", ln=True, align="R")
+        self.ln(5)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font("Helvetica", "I", 8)
+        self.set_text_color(148, 163, 184)
+        self.cell(0, 10, f"Page {self.page_no()}", align="C")
 
 def dispatch_report_card_webhook(student_name, score, percentage, remarks, topic_breakdown):
     breakdown_msg = ""
@@ -107,11 +120,8 @@ def academic_dashboard_index():
 
     return render_template("academic.html", questions=PHYSICS_ANSWER_KEY, report=None)
 
-# --- DYNAMIC FRONTLINE SYLLABUS BROWSING PROTOCOLS ---
-
 @academic_bp.route('/syllabus')
 def syllabus_index():
-    """Maps the academic_syllabus directory structure for the frontend framework."""
     tree = {}
     if os.path.exists(SYLLABUS_DIR):
         for subject in os.listdir(SYLLABUS_DIR):
@@ -123,12 +133,10 @@ def syllabus_index():
                     if os.path.isdir(level_path) and not level.startswith('.'):
                         files = [f for f in os.listdir(level_path) if f.endswith('.md')]
                         tree[subject][level] = files
-                        
     return render_template("syllabus_browser.html", tree=tree)
 
 @academic_bp.route('/syllabus/view/<subject>/<level>/<filename>')
 def view_syllabus_file(subject, level, filename):
-    """Securely reads, compiles and renders specific markdown templates into clean HTML."""
     target_path = os.path.abspath(os.path.join(SYLLABUS_DIR, subject, level, filename))
     safe_base = os.path.abspath(SYLLABUS_DIR)
     
@@ -144,11 +152,77 @@ def view_syllabus_file(subject, level, filename):
         "syllabus_viewer.html", 
         content=html_content, 
         title=filename.replace('_template.md', '').replace('_', ' ').title(),
-        subject=subject.upper(),
-        level=level.replace('_', ' ').upper()
+        subject=subject,
+        level=level,
+        filename=filename
     )
 
-# --- REST OF ORIGINAL API ENDPOINTS ---
+@academic_bp.route('/syllabus/download/<subject>/<level>/<filename>')
+def download_syllabus_pdf(subject, level, filename):
+    """Compiles the target Markdown worksheet directly into a dynamic PDF asset."""
+    target_path = os.path.abspath(os.path.join(SYLLABUS_DIR, subject, level, filename))
+    safe_base = os.path.abspath(SYLLABUS_DIR)
+    
+    if not target_path.startswith(safe_base) or not os.path.exists(target_path):
+        abort(404)
+        
+    with open(target_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+
+    pdf = AcademicPDF()
+    pdf.add_page()
+    
+    # Title Header Block
+    pdf.set_font("Helvetica", "B", 20)
+    pdf.set_text_color(30, 41, 59)
+    clean_title = filename.replace('_template.md', '').replace('_', ' ').title()
+    pdf.cell(0, 12, clean_title, ln=True)
+    
+    # Metadata Subtitle
+    pdf.set_font("Helvetica", "B", 10)
+    pdf.set_text_color(79, 70, 229)
+    pdf.cell(0, 6, f"TRACK: {subject.upper()} | LEVEL: {level.replace('_', ' ').upper()}", ln=True)
+    pdf.ln(8)
+    
+    # Render line by line
+    pdf.set_font("Helvetica", "", 11)
+    pdf.set_text_color(51, 65, 85)
+    
+    for line in lines:
+        cleaned_line = line.strip()
+        if not cleaned_line:
+            pdf.ln(4)
+            continue
+            
+        # Parse basic markdown layouts headers inside the file
+        if cleaned_line.startswith("###"):
+            pdf.ln(4)
+            pdf.set_font("Helvetica", "B", 12)
+            pdf.set_text_color(13, 148, 136)
+            pdf.cell(0, 8, cleaned_line.replace("###", "").strip(), ln=True)
+            pdf.set_font("Helvetica", "", 11)
+            pdf.set_text_color(51, 65, 85)
+        elif cleaned_line.startswith("##"):
+            pdf.ln(5)
+            pdf.set_font("Helvetica", "B", 14)
+            pdf.set_text_color(79, 70, 229)
+            pdf.cell(0, 10, cleaned_line.replace("##", "").strip(), ln=True)
+            pdf.set_font("Helvetica", "", 11)
+            pdf.set_text_color(51, 65, 85)
+        else:
+            # Clean up standard styling artifacts for pdf representation
+            text = cleaned_line.replace("**", "").replace("*", "").replace("`", "")
+            pdf.multi_cell(0, 6, text)
+            
+    pdf_output_dir = os.path.join(BASE_DIR, "exports")
+    os.makedirs(pdf_output_dir, exist_ok=True)
+    output_filename = filename.replace('.md', '.pdf')
+    output_path = os.path.join(pdf_output_dir, output_filename)
+    
+    pdf.output(output_path)
+    return send_file(output_path, as_attachment=True, download_name=output_filename)
+
+# --- REGAINED ORIGINAL STANDALONE API ENDPOINTS ---
 
 @academic_bp.route("/api/academic_data", methods=["GET"])
 def get_academic_analytics():
@@ -166,13 +240,7 @@ def get_academic_analytics():
             if student not in raw_map[subject]: raw_map[subject][student] = []
             raw_map[subject][student].append(score)
 
-        track_resolver = {
-            "TWIN A": "IGCSE Core",
-            "TWIN B": "IGCSE Core",
-            "DEMI": "WAEC Tracker",
-            "FEMI": "Int Foundation Programme"
-        }
-
+        track_resolver = {"TWIN A": "IGCSE Core", "TWIN B": "IGCSE Core", "DEMI": "WAEC Tracker", "FEMI": "Int Foundation Programme"}
         payload_response = {}
         for subject, students_dict in raw_map.items():
             payload_response[subject] = []
@@ -182,14 +250,9 @@ def get_academic_analytics():
                 variance = sum((x - mean_score) ** 2 for x in scores) / n if n > 0 else 0.0
                 std_deviation = math.sqrt(variance)
                 status = "Excel" if mean_score >= 75.0 else "Stable" if mean_score >= 55.0 else "Intervention"
-
                 payload_response[subject].append({
-                    "name": student_name,
-                    "track": track_resolver.get(student_name, "General Core Matrix"),
-                    "assessments": n,
-                    "mean": round(mean_score, 1),
-                    "std_dev": round(std_deviation, 2),
-                    "status": status
+                    "name": student_name, "track": track_resolver.get(student_name, "General Core Matrix"),
+                    "assessments": n, "mean": round(mean_score, 1), "std_dev": round(std_deviation, 2), "status": status
                 })
         return jsonify(payload_response)
     except Exception as e:
@@ -204,7 +267,6 @@ def add_manual_grade_entry():
         subject = data.get("subject")
         score = data.get("score")
         date = data.get("date")
-
         conn = sqlite3.connect(ACADEMIC_DB)
         cursor = conn.cursor()
         cursor.execute("INSERT INTO grades (student_name, subject, score, record_date) VALUES (?, ?, ?, ?)", (student, subject, float(score), date))
