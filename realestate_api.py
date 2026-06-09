@@ -220,5 +220,52 @@ def serve_default_hub():
         return send_from_directory(PORTAL_ROOT, "dashboard_index.html")
     return jsonify({"status": "online"})
 
+@app.route('/api/v1/dashboard/academic', methods=['GET'])
+def get_academic_stats():
+    try:
+        import sqlite3
+        import os
+        db_path = "/home/userland/Lagos-Secure-Portal/academic_stats.db"
+        
+        if not os.path.exists(db_path):
+            return jsonify({"status": "success", "data": []}), 200
+            
+        conn = sqlite3.connect(db_path)
+        c = conn.cursor()
+        
+        # Fetching the active roster
+        c.execute("SELECT name, gender, program_track FROM students")
+        rows = c.fetchall()
+        conn.close()
+        
+        students_list = []
+        for row in rows:
+            students_list.append({
+                "name": row[0],
+                "gender": row[1],
+                "program": row[2],
+                "status": "Enrolled"
+            })
+            
+        return jsonify({"status": "success", "data": students_list}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route('/api/v1/dashboard/compile_reports', methods=['POST'])
+def trigger_compiler():
+    try:
+        import subprocess
+        # Execute the ReportLab engine
+        process = subprocess.run(['python3', '/home/userland/Lagos-Secure-Portal/modules/generate_reports.py'], capture_output=True, text=True)
+        
+        if process.returncode == 0:
+            return jsonify({"status": "success", "message": "All PDF reports successfully compiled to the /reports directory."}), 200
+        else:
+            return jsonify({"status": "error", "message": f"Compilation failed: {process.stderr}"}), 500
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5005, debug=False)
