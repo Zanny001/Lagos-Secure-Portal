@@ -3,3 +3,7 @@
 __pycache__/
 *.pyc
 academic_stats.db
+credentials.json
+*.log
+*.bak
+*.tar.gz

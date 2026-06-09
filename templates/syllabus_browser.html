@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Syllabus Directory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <header class="flex justify-between items-center mb-8 border-b border-slate-700 pb-4">
+            <h1 class="text-3xl font-bold text-emerald-400">Syllabus Matrix</h1>
+            <a href="/" class="text-sm bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded">← Dashboard</a>
+        </header>
+
+        <div class="space-y-8">
+            {% for subject, levels in tree.items() %}
+            <div class="bg-slate-800 p-6 rounded-lg border border-slate-700">
+                <h2 class="text-2xl font-semibold capitalize text-indigo-400 mb-4 tracking-wide">
+                    {{ subject }}
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for level, files in levels.items() %}
+                    <div class="bg-slate-900/50 p-4 rounded-md border border-slate-700/50">
+                        <h3 class="text-lg font-medium text-slate-300 uppercase mb-3 border-b border-slate-700 pb-2">
+                            {{ level.replace('_', ' ') }}
+                        </h3>
+                        <ul class="space-y-2">
+                            {% for file in files %}
+                            <li>
+                                <a href="/syllabus/view/{{ subject }}/{{ level }}/{{ file }}" 
+                                   class="text-sm text-cyan-400 hover:text-cyan-300 hover:underline flex items-center">
+                                    <span class="mr-2 text-slate-500">📄</span> 
+                                    {{ file.replace('_template.md', '').replace('_', ' ').title() }}
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="text-sm text-slate-500 italic">No modules found.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

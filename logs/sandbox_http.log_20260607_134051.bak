@@ -1,0 +1,48 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/usr/lib/python3.14/http/server.py", line 1432, in <module>
+    test(
+    ~~~~^
+        HandlerClass=handler_class,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+        tls_password=tls_key_password,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/usr/lib127.0.0.1 - - [07/Jun/2026 13:01:16] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:01:18] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:01:19] code 404, message File not found
+127.0.0.1 - - [07/Jun/2026 13:01:19] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [07/Jun/2026 13:01:35] "GET /generate_physics_problems.py HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:01:54] "GET /zannie_sales.db HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:02:05] "GET /simulate_webhook.py HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:02:08] "GET /scripts/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:02:14] "GET /scripts/scrapers/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:02:20] "GET /scripts/scrapers/run_scraper.py HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:02:24] "GET /scripts/scrapers/realestate_scraper.py HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:02:26] "GET /scripts/scrapers/crawler_daemon.py HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:02:28] "GET /scripts/scrapers/university_scraper.py HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:02:34] "GET /scripts/bash/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:02:47] "GET /templates/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:03:17] "GET /sys_watchdog.py HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:03:33] "GET /physics_app.py HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:04:11] "GET /app.py HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:04:20] "GET /academic_manager.py HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:04:52] "GET /vercel.json HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:05:07] "GET /sys_reporter.py HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:05:12] "GET /sports_analytics.db HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:05:26] "GET /scripts/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:05:31] "GET /scripts/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:05:43] "GET /scripts/maintenance/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:06:00] "GET /scripts/scrapers/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:06:08] "GET /scripts/maintenance/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:06:11] "GET /scripts/bash/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:06:21] "GET /scripts/bash/tunnel_monitor.sh HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:21:57] "GET /scripts/bash/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:21:58] code 404, message File not found
+127.0.0.1 - - [07/Jun/2026 13:21:58] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [07/Jun/2026 13:22:05] "GET /scripts/bash/ HTTP/1.1" 200 -
+127.0.0.1 - - [07/Jun/2026 13:22:11] code 404, message File not found
+127.0.0.1 - - [07/Jun/2026 13:22:11] "GET /academic.html HTTP/1.1" 404 -
