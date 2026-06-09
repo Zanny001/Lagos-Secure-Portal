@@ -2,171 +2,223 @@ import os
 import sqlite3
 import json
 import requests
+import subprocess
+import random
 from flask import Flask, jsonify, send_from_directory, request
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
-# ==============================================================================
-# MASTER CONFIGURATIONS & COMPONENT PATHS
-# ==============================================================================
-REALESTATE_DB = "realestate_analytics.db"
-ACADEMIC_DB = "academic_analytics.db"
 PORTAL_ROOT = "/home/userland/Lagos-Secure-Portal"
+REALESTATE_DB = os.path.join(PORTAL_ROOT, "realestate_analytics.db")
+ACADEMIC_DB = os.path.join(PORTAL_ROOT, "academic_analytics.db")
+DEALS_DB = os.path.join(PORTAL_ROOT, "deal_harvester.db")
 EXCHANGE_RATE_API_URL = "https://open.er-api.com/v6/latest/NGN"
 
 DEFAULT_CURRENCY_CACHE = {
-    "NGN": 1.0,
-    "USD": 0.00067,
-    "GBP": 0.00053,
-    "EUR": 0.00062
+    "NGN": 1.0, "USD": 0.00067, "GBP": 0.00053, "EUR": 0.00062
 }
 
-def query_database(db_path, query, args=()):
-    """Safely handles connections and extracts rows from target SQLite database nodes."""
-    if not os.path.exists(db_path):
-        return None
+def check_process(pattern):
     try:
-        conn = sqlite3.connect(db_path)
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        cursor.execute(query, args)
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(row) for row in rows]
-    except Exception as e:
-        print(f"[-] Database query failure on {db_path}: {e}")
-        return []
+        res = subprocess.run(["pgrep", "-f", pattern], stdout=subprocess.PIPE)
+        return res.returncode == 0
+    except Exception:
+        return False
 
 def fetch_live_exchange_rates():
-    """Fetches real-time currency conversion matrices using NGN as the base denomination."""
     try:
         response = requests.get(EXCHANGE_RATE_API_URL, timeout=4)
         if response.status_code == 200:
             rates = response.json().get("rates", {})
             return {cur: rates[cur] for cur in DEFAULT_CURRENCY_CACHE if cur in rates}
-    except Exception as e:
-        print(f"[-] Exchange rate sync timed out: {e}. Utilizing fallback parameters.")
+    except Exception:
+        pass
     return DEFAULT_CURRENCY_CACHE
 
-# ==============================================================================
-# GLOBAL CORS MIDDLEWARE INFRASTRUCTURE
-# ==============================================================================
 @app.after_request
 def apply_global_cors_headers(response):
-    """Injects CORS compliance headers to allow seamless cross-origin traffic via public tunnels."""
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Bypass-Tunnel-Reminder"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     return response
 
 # ==============================================================================
-# REAL ESTATE & ACADEMIC TRACKING ENDPOINTS
+# DEVOPS SYSTEM HUB ENGINE
 # ==============================================================================
-@app.route('/api/metrics', methods=['GET'])
-def get_metrics():
-    """Public cross-origin network endpoint serving structured market trends."""
-    query = """
-        SELECT location, average_price as price, active_listings as listings,
-               classification as class, service_charge, total_area_sqm, price_per_sqm
-        FROM location_metrics
-    """
-    data = query_database(REALESTATE_DB, query)
-    if not data:
-        return jsonify([
-            {"location": "Lekki Phase 1 Sector", "price": 125000000.0, "listings": 14, "class": "Premium Residential", "service_charge": 2500000.0, "total_area_sqm": 400.0, "price_per_sqm": 312500.0},
-            {"location": "Alaba International Segment", "price": 45000000.0, "listings": 28, "class": "Commercial Hub", "service_charge": 0.0, "total_area_sqm": 120.0, "price_per_sqm": 375000.0}
-        ])
-    return jsonify(data)
+@app.route('/api/v1/dashboard/status', methods=['GET'])
+def get_dashboard_status():
+    return jsonify({
+        "crawler": check_process("realestate_crawler.py"),
+        "crypto": check_process("crypto_signal_bot.py"),
+        "harvester": check_process("live_monitor.py"),
+        "api": True,
+        "http": check_process("http.server 8080"),
+        "verify": check_process("node server.js")
+    }), 200
 
-@app.route('/api/students', methods=['GET'])
-def get_student_metrics():
-    """Public endpoint serving unified academic telemetry metrics."""
-    query = "SELECT student_name, syllabus_type, average_score, attendance_rate FROM student_metrics"
-    rows = query_database(ACADEMIC_DB, query)
-    if rows is None:
-        return jsonify({"error": "Academic tracker database node unseeded or unreachable"}), 404
-    payload = [{"name": r["student_name"], "track": r["syllabus_type"], "average": r["average_score"], "attendance": r["attendance_rate"]} for r in rows]
-    return jsonify(payload)
+@app.route('/api/v1/dashboard/execute', methods=['POST'])
+def execute_dashboard_action():
+    data = request.get_json() or {}
+    action = str(data.get('action', ''))
+    msg = "Action sequence unrecognized"
 
-@app.route('/api/syllabus', methods=['GET'])
-def get_syllabus_manifest():
+    if action == "1":
+        if not check_process("realestate_crawler.py"):
+            subprocess.Popen(["python3", f"{PORTAL_ROOT}/scripts/scrapers/realestate_crawler.py"], stdout=subprocess.DEVNULL)
+            msg = "Real Estate Crawler daemon successfully triggered."
+        else: msg = "Crawler pipeline already operational."
+    elif action == "5":
+        subprocess.run(["pkill", "-f", "realestate_crawler.py"])
+        msg = "Real Estate Crawler processes terminated safely."
+    elif action == "2":
+        if not check_process("crypto_signal_bot.py"):
+            subprocess.Popen(["python3", f"{PORTAL_ROOT}/scripts/bots/crypto_signal_bot.py"], stdout=subprocess.DEVNULL)
+            msg = "Crypto volatility tracking engines initialized."
+        else: msg = "Crypto bot streaming matrix already running."
+    elif action == "6":
+        subprocess.run(["pkill", "-f", "crypto_signal_bot.py"])
+        msg = "Crypto volatility tracking systems deactivated."
+    elif action == "3": msg = "Core System Hub API is already running online on Port 5005."
+    elif action == "4":
+        if not check_process("http.server 8080"):
+            subprocess.Popen(["python3", "-m", "http.server", "8080"], cwd=PORTAL_ROOT, stdout=subprocess.DEVNULL)
+            msg = "Local Sandboxed Server bound to Port 8080."
+        else: msg = "HTTP Sandbox on Port 8080 already listening."
+    elif action == "8":
+        subprocess.run(["pkill", "-f", "http.server 8080"])
+        msg = "HTTP Port 8080 Web Server terminated."
+    elif action == "9":
+        if not check_process("node server.js"):
+            subprocess.Popen(["node", "server.js"], cwd=PORTAL_ROOT, stdout=subprocess.DEVNULL)
+            msg = "Lagos Secure Verify Node booted on Port 5000."
+        else: msg = "Secure Verify Node already running on Port 5000."
+    elif action == "10":
+        subprocess.run(["pkill", "-f", "node server.js"])
+        msg = "Lagos Secure Verify Node stopped."
+    elif action == "12":
+        subprocess.Popen(["python3", f"{PORTAL_ROOT}/scripts/maintenance/compile_academic_stats.py"], stdout=subprocess.DEVNULL)
+        msg = "Markdown report rebuild loop initialized."
+    elif action == "13":
+        subprocess.Popen(["bash", f"{PORTAL_ROOT}/scripts/bash/system_maintenance.sh"], stdout=subprocess.DEVNULL)
+        msg = "Database rotations and background log back-ups triggered."
+    elif action == "14":
+        if not check_process("live_monitor.py"):
+            subprocess.Popen(["python3", f"{PORTAL_ROOT}/scripts/bots/live_monitor.py"], stdout=subprocess.DEVNULL)
+            msg = "Deal Harvester Pipeline actively hunting margins."
+        else: msg = "Deal Harvester is already running."
+    elif action == "15":
+        subprocess.run(["pkill", "-f", "live_monitor.py"])
+        msg = "Deal Harvester Pipeline terminated safely."
+    elif action == "A":
+        if not check_process("realestate_crawler.py"): subprocess.Popen(["python3", f"{PORTAL_ROOT}/scripts/scrapers/realestate_crawler.py"], stdout=subprocess.DEVNULL)
+        if not check_process("crypto_signal_bot.py"): subprocess.Popen(["python3", f"{PORTAL_ROOT}/scripts/bots/crypto_signal_bot.py"], stdout=subprocess.DEVNULL)
+        if not check_process("live_monitor.py"): subprocess.Popen(["python3", f"{PORTAL_ROOT}/scripts/bots/live_monitor.py"], stdout=subprocess.DEVNULL)
+        if not check_process("http.server 8080"): subprocess.Popen(["python3", "-m", "http.server", "8080"], cwd=PORTAL_ROOT, stdout=subprocess.DEVNULL)
+        if not check_process("node server.js"): subprocess.Popen(["node", "server.js"], cwd=PORTAL_ROOT, stdout=subprocess.DEVNULL)
+        msg = "Global boot macro deployment run finished successfully. All paths launched."
+    elif action == "K":
+        subprocess.run(["pkill", "-f", "realestate_crawler.py"])
+        subprocess.run(["pkill", "-f", "crypto_signal_bot.py"])
+        subprocess.run(["pkill", "-f", "live_monitor.py"])
+        subprocess.run(["pkill", "-f", "http.server 8080"])
+        subprocess.run(["pkill", "-f", "node server.js"])
+        msg = "All detached daemon tasks downscaled and killed."
+
+    return jsonify({"status": "executed", "message": msg}), 200
+
+# ==============================================================================
+# DATA PIPELINES 
+# ==============================================================================
+@app.route('/api/v1/dashboard/metrics', methods=['GET'])
+def get_market_metrics():
     try:
-        with open(os.path.join(PORTAL_ROOT, 'lessons_manifest.json'), 'r', encoding='utf-8') as f:
-            return jsonify(json.load(f)), 200
+        conn = sqlite3.connect(REALESTATE_DB)
+        cursor = conn.cursor()
+        cursor.execute("SELECT location, average_price, active_listings, classification, last_updated FROM location_metrics")
+        rows = cursor.fetchall()
+        conn.close()
+        metrics = [{"location": r[0], "average_price": r[1], "active_listings": r[2], "classification": r[3]} for r in rows]
+        return jsonify({"status": "success", "data": metrics}), 200
+    except:
+        return jsonify({"status": "error"}), 500
+
+@app.route('/api/v1/dashboard/crypto', methods=['GET'])
+def get_crypto_telemetry():
+    try:
+        is_active = check_process("crypto_signal_bot.py")
+        if not is_active:
+            # Return offline status if the bot is killed
+            return jsonify({"status": "success", "data": [
+                {"asset": "SYSTEM OFFLINE", "price": 0.00, "change_24h": 0.00, "status": "OFFLINE"}
+            ]}), 200
+
+        # Fetch LIVE data from Binance
+        symbols = '["BTCUSDT","ETHUSDT","SOLUSDT","BNBUSDT","XRPUSDT","ADAUSDT"]'
+        url = f"https://api.binance.com/api/v3/ticker/24hr?symbols={symbols}"
+        res = requests.get(url, timeout=5)
+        
+        if res.status_code == 200:
+            data = res.json()
+            crypto_data = []
+            for coin in data:
+                asset_name = coin['symbol'].replace('USDT', ' / USD')
+                price = float(coin['lastPrice'])
+                change = float(coin['priceChangePercent'])
+                status = "BULLISH" if change > 0 else "BEARISH"
+                
+                crypto_data.append({
+                    "asset": asset_name,
+                    "price": round(price, 4) if price < 1 else round(price, 2),
+                    "change_24h": round(change, 2),
+                    "status": status
+                })
+            return jsonify({"status": "success", "data": crypto_data}), 200
+        else:
+            raise Exception("API blocked or failed")
+            
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# ==============================================================================
-# INTERNATIONAL E-COMMERCE GATEWAY LAYER (ZANNIE BRAND)
-# ==============================================================================
-@app.route('/api/zannie/product-price', methods=['POST'])
-def calculate_localized_price():
-    """Accepts a base price in NGN and outputs dynamic global currency conversions."""
-    data = request.get_json() or {}
-    base_price_ngn = data.get("base_price_ngn")
-    target_currency = data.get("target_currency", "NGN").upper()
+@app.route('/api/v1/dashboard/deals', methods=['GET'])
+def get_harvested_deals():
+    try:
+        import sqlite3
+        db_path = "/home/userland/Lagos-Secure-Portal/deal_harvester.db"
+        
+        if not os.path.exists(db_path):
+            return jsonify({"status": "success", "data": []}), 200
+            
+        conn = sqlite3.connect(db_path)
+        c = conn.cursor()
+        c.execute("SELECT device_name, original_price, discount_price, savings_percent, affiliate_link FROM active_deals")
+        rows = c.fetchall()
+        conn.close()
+        
+        deals_list = []
+        for row in rows:
+            deals_list.append({
+                "device": row[0],
+                "original": row[1],
+                "discount": row[2],
+                "savings": row[3],
+                "link": row[4]
+            })
+            
+        return jsonify({"status": "success", "data": deals_list}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
-    if base_price_ngn is None:
-        return jsonify({"status": "error", "message": "Missing key: base_price_ngn"}), 400
+@app.route('/api/v1/store/rates', methods=['GET'])
+def get_store_exchange_rates():
+    return jsonify({"status": "success", "base": "NGN", "rates": fetch_live_exchange_rates()}), 200
 
-    rates = fetch_live_exchange_rates()
-    if target_currency not in rates:
-        return jsonify({"status": "error", "message": f"Unsupported currency configuration. Options: {list(rates.keys())}"}), 400
-
-    conversion_factor = rates[target_currency]
-    converted_amount = round(float(base_price_ngn) * conversion_factor, 2)
-    return jsonify({
-        "status": "success", "base_currency": "NGN", "base_price": float(base_price_ngn),
-        "target_currency": target_currency, "exchange_rate": conversion_factor, "converted_amount": converted_amount
-    }), 200
-
-@app.route('/api/zannie/checkout', methods=['POST'])
-def initialize_international_checkout():
-    """Validates global customer entries and maps payloads for Paystack/Flutterwave APIs."""
-    data = request.get_json() or {}
-    customer_email = data.get("email")
-    total_amount_ngn = data.get("amount_ngn")
-    selected_currency = data.get("currency", "NGN").upper()
-
-    if not customer_email or not total_amount_ngn:
-        return jsonify({"status": "error", "message": "Compulsory arguments missing: email and amount_ngn"}), 400
-
-    rates = fetch_live_exchange_rates()
-    conversion_rate = rates.get(selected_currency, 1.0)
-    final_settlement_value = round(float(total_amount_ngn) * conversion_rate, 2)
-
-    gateway_payload = {
-        "email": customer_email,
-        "amount": int(final_settlement_value * 100),  # Gateways compute in minor denominations (kobo/cents)
-        "currency": selected_currency,
-        "metadata": {
-            "custom_fields": [
-                {"display_name": "Brand Origin", "variable_name": "brand", "value": "Zannie Fashion International"},
-                {"display_name": "Base Valuation", "variable_name": "base_ngn", "value": f"NGN {total_amount_ngn}"}
-            ]
-        }
-    }
-    return jsonify({
-        "status": "success", "message": "Cross-border payment pipeline established.",
-        "gateway_payload": gateway_payload,
-        "payment_url_mock": f"https://checkout.gatewayserver.com/pay/zannie_secure_{int(final_settlement_value)}"
-    }), 200
-
-# ==============================================================================
-# DYNAMIC FRONTEND UI STATIC FILE ROUTING LAYER
-# ==============================================================================
 @app.route('/', methods=['GET'])
 def serve_default_hub():
-    if os.path.exists(os.path.join(PORTAL_ROOT, "index.html")):
-        return send_from_directory(PORTAL_ROOT, "index.html")
-    return jsonify({"status": "online", "node_owner": "Elebute Hassan Oluwafemi", "active_modules": ["Analytics Hub", "Zannie Commerce Platform"]})
-
-@app.route('/<path:filename>', methods=['GET'])
-def serve_portal_html_pages(filename):
-    if os.path.exists(os.path.join(PORTAL_ROOT, filename)):
-        return send_from_directory(PORTAL_ROOT, filename)
-    return jsonify({"error": f"Asset target path '{filename}' is unreachable on this server infrastructure partition."}), 404
+    if os.path.exists(os.path.join(PORTAL_ROOT, "dashboard_index.html")):
+        return send_from_directory(PORTAL_ROOT, "dashboard_index.html")
+    return jsonify({"status": "online"})
 
 if __name__ == '__main__':
-    print("[*] Launching Unified Core API and Web Engine on Port 5005...")
     app.run(host='0.0.0.0', port=5005, debug=False)
