@@ -267,5 +267,21 @@ def trigger_compiler():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
+
+@app.route('/api/v1/dashboard/reports/<name>', methods=['GET'])
+def download_report(name):
+    try:
+        from flask import send_from_directory, jsonify
+        safe_name = name.replace(' ', '_')
+        filename = f"Zannie_Report_{safe_name}.pdf"
+        reports_dir = "/home/userland/Lagos-Secure-Portal/reports"
+        
+        if os.path.exists(os.path.join(reports_dir, filename)):
+            return send_from_directory(reports_dir, filename, as_attachment=True)
+        return jsonify({"status": "error", "message": "File not found. Please compile reports first."}), 404
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5005, debug=False)
