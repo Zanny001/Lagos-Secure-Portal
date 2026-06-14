@@ -7,3 +7,9 @@ credentials.json
 *.log
 *.bak
 *.tar.gz
+
+# Local Node.js Tools (Do not deploy)
+package.json
+package-lock.json
+server.js
+node_modules/
