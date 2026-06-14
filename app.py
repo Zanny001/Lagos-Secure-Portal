@@ -81,12 +81,12 @@ def init_all_databases():
 init_all_databases()
 
 # ===================================================================
-# BLUEPRINT REGISTRATION
+# BLUEPRINT REGISTRATION (PREFIXED TO AVOID ROUTING COLLISIONS)
 # ===================================================================
-app.register_blueprint(academic_bp)
-app.register_blueprint(zannie_bp)
-app.register_blueprint(harvester_bp)
-app.register_blueprint(scholarships_bp)
+app.register_blueprint(academic_bp, url_prefix='/academic')
+app.register_blueprint(zannie_bp, url_prefix='/zannie')
+app.register_blueprint(harvester_bp, url_prefix='/harvester')
+app.register_blueprint(scholarships_bp, url_prefix='/scholarships')
 
 # ===================================================================
 # PRIMARY ROOT ROUTE: EXTENDED CURRICULUM VIEW
@@ -112,7 +112,7 @@ def serve_physics_assessments():
     <body>
         <div class="container">
             <h1>IGCSE Extended Curriculum: Nuclear & Space Physics</h1>
-            
+
             <div class="note-section">
                 <h3>Lesson Summary</h3>
                 <p><strong>Nuclear Physics:</strong> Nuclei consist of protons and neutrons. Isotopes share proton numbers but vary in neutrons. Unstable configurations decay via alpha, beta, or gamma emissions.</p>
