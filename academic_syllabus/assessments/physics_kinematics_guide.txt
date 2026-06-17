@@ -1,0 +1,151 @@
+==================================================================
+              ZANNIE ACADEMIC PREPARATION TUTORIALS
+           ADVANCED MECHANICS, KINEMATICS & ROTATIONAL MOTION
+==================================================================
+Topic Focus: SUVAT Derivations & Uniform Circular Motion
+Curriculum Standards: IGCSE / WAEC / IFP Standard
+Date: May 2026
+Instructor: Elebute Hassan Oluwafemi
+
+------------------------------------------------------------------
+SECTION 1: THE SUVAT VARIABLE MATRIX
+------------------------------------------------------------------
+Before deriving the equations of motion, ensure complete clarity
+on the core tracking variables and their SI base units:
+  s = Displacement (meters, m)
+  u = Initial Velocity (meters per second, m/s)
+  v = Final Velocity (meters per second, m/s)
+  a = Constant Acceleration (meters per second squared, m/s^2)
+  t = Time Elapsed (seconds, s)
+
+------------------------------------------------------------------
+SECTION 2: CORE SUVAT DERIVATIONS & MATHEMATICAL PROOFS
+------------------------------------------------------------------
+
+CONSTRUCTION OF EQUATION 1: The Velocity-Time Relationship
+- By fundamental definition, acceleration is the uniform rate of
+  change of velocity over time:
+    a = (v - u) / t
+- Multiplying both sides by t:
+    at = v - u
+- Rearranging to isolate final velocity (v):
+    v = u + at  [EQUATION 1]
+
+CONSTRUCTION OF EQUATION 2: The Displacement-Velocity Relationship
+- For an object undergoing uniform acceleration, the average velocity
+  is the arithmetic mean of its initial and final velocities:
+    Average Velocity = (u + v) / 2
+- Displacement is defined as average velocity multiplied by total time:
+    s = [ (u + v) / 2 ] * t  [EQUATION 2]
+
+CONSTRUCTION OF EQUATION 3: Substituting Velocity for Time-Independence
+- To eliminate final velocity 'v', substitute Equation 1 (v = u + at)
+  directly into Equation 2:
+    s = [ (u + (u + at)) / 2 ] * t
+    s = [ (2u + at) / 2 ] * t
+    s = [ u + (1/2)at ] * t
+    s = ut + (1/2)at^2   [EQUATION 3]
+
+CONSTRUCTION OF EQUATION 4: The Time-Independent Formula
+- Rearrange Equation 1 to isolate time: t = (v - u) / a
+- Substitute this expression for 't' into Equation 2:
+    s = [ (v + u) / 2 ] * [ (v - u) / a ]
+    s = (v^2 - u^2) / 2a
+- Multiplying both sides by 2a and rearranging to isolate v^2:
+    v^2 = u^2 + 2as  [EQUATION 4]
+
+------------------------------------------------------------------
+SECTION 3: UNIFORM CIRCULAR MOTION & CENTRIPETAL FORCES
+------------------------------------------------------------------
+Core Concepts:
+1. Linear Speed vs. Angular Velocity:
+   An object moving in a circle of radius 'r' at constant speed 'v' 
+   completes a full rotation (2*pi*r) in time period 'T'.
+   - Linear speed: v = (2*pi*r) / T
+   - Angular velocity (w) in rad/s: w = 2*pi / T
+   - Relationship: v = r * w
+
+2. The Acceleration Paradox:
+   Even though the linear speed 'v' is constant, the object is
+   constantly accelerating because its *direction of motion* changes 
+   at every point along the circular arc. This change in the velocity
+   vector requires a net inward acceleration.
+   - Centripetal Acceleration formula: ac = v^2 / r = r * w^2
+
+3. Dynamics of Centripetal Force:
+   According to Newton's Second Law (F = ma), a centripetal force (Fc) 
+   must act toward the center of the circle to maintain this motion.
+   - Centripetal Force formula: Fc = (m * v^2) / r = m * r * w^2
+
+------------------------------------------------------------------
+SECTION 4: GUIDED WORKED EXAMPLES
+------------------------------------------------------------------
+PROBLEM 1 (Linear Mechanics):
+A vehicle accelerates uniformly from an initial speed of 10 m/s 
+to a final speed of 30 m/s over a distance of 100 meters. 
+Calculate the constant acceleration.
+
+Solution:
+- Given: u = 10 m/s, v = 30 m/s, s = 100 m
+- Formula: v^2 = u^2 + 2as
+- Substitution:
+    (30)^2 = (10)^2 + 2 * a * 100
+    900 = 100 + 200a
+    800 = 200a -> a = 4.0 m/s^2
+
+PROBLEM 2 (Circular Motion):
+A test mass of 0.5 kg is tied to a string of length 2.0 meters 
+and whirled in a horizontal circle at a steady speed of 6.0 m/s. 
+Find the tension in the string.
+
+Solution:
+- Given: m = 0.5 kg, r = 2.0 m, v = 6.0 m/s
+- Tension provides the necessary centripetal force: T = (m * v^2) / r
+- Substitution:
+    T = (0.5 * 6.0^2) / 2.0
+    T = (0.5 * 36) / 2.0
+    T = 18 / 2.0 -> T = 9.0 Newtons
+
+------------------------------------------------------------------
+SECTION 5: STUDENT PRACTICE ASSESSMENT (PHY-MECH-04)
+==================================================================
+
+PART A: MULTIPLE CHOICE QUESTIONS
+1. A particle moves along a circle of radius r with constant speed v. 
+   What is its acceleration?
+   A) v/r, directed tangentially.
+   B) v^2/r, directed away from the center.
+   C) v^2/r, directed toward the center.
+   D) Zero, since speed is constant.
+
+2. A stone dropped from rest down a dry well hits the bottom in 4.0 seconds. 
+   How deep is the well? (Assume g = 10 m/s^2)
+   A) 40 m    B) 80 m    C) 160 m   D) 200 m
+
+PART B: STRUCTURED THEORY QUESTIONS
+3. A stone is projected horizontally from the top of an 80m cliff 
+   with an initial horizontal velocity of 15 m/s. Neglecting air resistance:
+   (a) Calculate the time taken to hit the ground.
+   (b) Determine the horizontal displacement (range) from the cliff base.
+
+4. Distinguish clearly between linear speed and angular velocity, 
+   and state why an object in uniform circular motion can never be in 
+   transitional equilibrium.
+
+------------------------------------------------------------------
+SECTION 6: STEP-BY-STEP MARKING SCHEME & SOLUTIONS KEY
+------------------------------------------------------------------
+ANSWERS TO PART A:
+1. C — Uniform circular motion requires an inward acceleration of v^2/r.
+2. B — s = ut + 0.5*g*t^2 -> s = 0 + 0.5 * 10 * (4^2) = 5 * 16 = 80 meters.
+
+ANSWERS TO PART B:
+3. (a) Vertical fall: y = 0.5*g*t^2 -> 80 = 5*t^2 -> t^2 = 16 -> t = 4.0 seconds.
+   (b) Range: x = vx * t -> x = 15 m/s * 4.0 s = 60 meters.
+
+4. Linear speed is distance covered along the arc per unit time (v = ds/dt).
+   Angular velocity is the angle swept at the center per unit time (w = d_theta/dt).
+   An object in uniform circular motion experiences a net unbalanced inward force 
+   (centripetal force), meaning acceleration is non-zero, violating the condition 
+   for static or transitional equilibrium (sum of forces must equal zero).
+==================================================================

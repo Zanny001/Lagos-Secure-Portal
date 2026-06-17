@@ -1,0 +1,113 @@
+import os
+import time
+
+def build_math_assessment():
+    """
+    Compiles a structured, professional-grade Mathematics assessment sheet
+    optimized for IGCSE and WAEC rigorous curriculum preparation.
+    """
+    timestamp = time.strftime('%B %Y')
+    
+    assessment_content = f"""==================================================================
+              ZANNIE ACADEMIC PREPARATION TUTORIALS
+                 MATHEMATICS INTENSIVE ASSESSMENT
+==================================================================
+Topic Focus: Quadratic Equations, Functions & Discriminant Analysis
+Curriculum Standards: IGCSE / WAEC / OCR GCSE
+Date: {timestamp}
+Time Allowed: 45 Minutes
+
+INSTRUCTIONS TO CANDIDATES:
+- Answer ALL questions.
+- Write your workings clearly in the spaces provided.
+- Electronic calculators may be used where appropriate.
+
+------------------------------------------------------------------
+QUESTION 1 [Total: 6 Marks]
+Given the quadratic equation: 3x² - 11x + 6 = 0
+
+(a) Solve the equation by factorization. [3 Marks]
+(b) Verify your solutions using the quadratic formula: 
+    x = [-b ± √(b² - 4ac)] / 2a [3 Marks]
+
+------------------------------------------------------------------
+QUESTION 2 [Total: 4 Marks]
+A quadratic curve has the equation: y = kx² + 6x + 3, where k is a constant.
+
+(a) Find the values of k for which the equation has two distinct 
+    real roots. [2 Marks]
+(b) State the value of k for which the line is a tangent to the x-axis. 
+    [2 Marks]
+
+------------------------------------------------------------------
+QUESTION 3 [Total: 5 Marks]
+The height, h (in meters), of a projectile thrown upwards from a 
+platform is modeled by the function: h(t) = -5t² + 20t + 2
+where t is the time elapsed in seconds.
+
+(a) Determine the maximum height reached by the projectile. [3 Marks]
+(b) Calculate the time t when the projectile hits the ground 
+    (h = 0). Give your answer to 2 decimal places. [2 Marks]
+
+==================================================================
+                      END OF QUESTION PAPER
+==================================================================
+"""
+
+    marking_scheme = """==================================================================
+                    OFFICIAL MARKING SCHEME & RUBRIC
+==================================================================
+SOLUTION & GRADING BREAKDOWN
+
+QUESTION 1:
+(a) 3x² - 11x + 6 = 0  ->  3x² - 9x - 2x + 6 = 0
+    3x(x - 3) - 2(x - 3) = 0 -> (3x - 2)(x - 3) = 0
+    x = 2/3 or x = 3 
+    [M1 for splitting middle term, A1 for brackets, A1 for final roots]
+    
+(b) a = 3, b = -11, c = 6
+    x = [11 ± √((-11)² - 4(3)(6))] / (2 * 3)
+    x = [11 ± √(121 - 72)] / 6 = [11 ± √49] / 6
+    x = (11 + 7) / 6 = 3  OR  x = (11 - 7) / 6 = 4/6 = 2/3
+    [M1 for correct substitution, M1 for discriminant evaluation (49), A1 for roots matching part a]
+
+QUESTION 2:
+(a) For distinct real roots, Discriminant (Δ) > 0
+    b² - 4ac > 0 -> 6² - 4(k)(3) > 0
+    36 - 12k > 0 -> 36 > 12k -> k < 3 (where k ≠ 0)
+    [M1 for setting up b² - 4ac > 0, A1 for k < 3]
+    
+(b) For a tangent to the x-axis, the curve has real and equal roots (Δ = 0)
+    36 - 12k = 0 -> k = 3
+    [M1 for setting Δ = 0, A1 for k = 3]
+
+QUESTION 3:
+(a) Max height occurs at the vertex: t = -b / (2a)
+    t = -20 / (2 * -5) = -20 / -10 = 2 seconds
+    Substitute t = 2 back into equation:
+    h(2) = -5(2)² + 20(2) + 2 = -20 + 40 + 2 = 22 meters
+    [M1 for finding t = 2, M1 for substituting, A1 for 22m]
+    
+(b) -5t² + 20t + 2 = 0
+    Using formula: t = [-20 ± √(400 - 4(-5)(2))] / -10
+    t = [-20 ± √(400 + 40)] / -10 = [-20 ± √440] / -10
+    √440 ≈ 20.98 -> t = (-20 - 20.98) / -10 = 4.10 seconds (ignore negative time t ≈ -0.10)
+    [M1 for structural setup, A1 for correct positive root 4.10s]
+==================================================================
+"""
+
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Write Question Paper
+    with open(os.path.join(current_dir, "math_assessment.txt"), "w", encoding="utf-8") as f:
+        f.write(assessment_content)
+        
+    # Write Marking Scheme
+    with open(os.path.join(current_dir, "math_marking_scheme.txt"), "w", encoding="utf-8") as f:
+        f.write(marking_scheme)
+        
+    print("[COMPILER] Successfully built math_assessment.txt and math_marking_scheme.txt")
+
+if __name__ == "__main__":
+    build_math_assessment()
+

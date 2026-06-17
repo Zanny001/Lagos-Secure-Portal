@@ -1,0 +1,11 @@
+Flask==3.0.3
+Flask-Cors==4.0.0
+psycopg2-binary==2.9.9
+requests==2.32.3
+Werkzeug==3.0.3
+gunicorn==21.2.0
+reportlab==4.0.8
+fpdf2==2.7.9
+Markdown==3.6
+google-auth==2.29.0
+google-api-python-client==2.129.0

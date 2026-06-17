@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zannie Digital Automation System — Premium Console</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-main: #0d1117;
+            --bg-card: #161b22;                                                           
+            --purple-accent: #8a2be2;                                                     
+            --text-primary: #c9d1d9;
+            --text-muted: #8b949e;                                                        
+            --green-glow: #2ea44f;
+            --red-alert: #da3633;
+            --border-color: #30363d;
+        }                                                                     
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+        }
+        
+        /* Premium Auth Gateway Styles */
+        #auth-gateway { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-main); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .auth-box { background: var(--bg-card); border: 1px solid var(--purple-accent); border-radius: 8px; padding: 40px; text-align: center; box-shadow: 0 0 20px rgba(138, 43, 226, 0.15); }
+        .auth-input { background: #0d1117; border: 1px solid var(--border-color); color: white; padding: 12px; border-radius: 6px; width: 80%; margin: 20px 0; font-family: monospace; text-align: center; font-size: 16px; outline: none; }
+        .auth-input:focus { border-color: var(--purple-accent); }
+
+        .container { max-width: 1000px; margin: 0 auto; display: none; /* Hidden until login */ }
+        .header-banner {
+            background: linear-gradient(135deg, #2c1654 0%, #161b22 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;                                                      
+        }
+        .header-banner h1 { color: #a371f7; margin: 0; font-size: 26px; letter-spacing: 0.5px; }
+        .header-banner p { color: var(--text-muted); margin: 8px 0 0 0; font-size: 14px; }
+        .panel-grid { display: grid; grid-template-columns: 1fr; gap: 25px; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #dbb8ff;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .path-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-radius: 6px; background-color: #0d1117; margin-bottom: 10px; border: 1px solid #21262d; }
+        .path-info { display: flex; align-items: center; gap: 12px; }
+        .indicator { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .status-running { background-color: #56d364; box-shadow: 0 0 8px #56d364; }
+        .status-stopped { background-color: #8b949e; }
+        .port-tag { font-family: monospace; font-size: 12px; background-color: #21262d; padding: 2px 6px; border-radius: 4px; color: #58a6ff; margin-left: 10px; }
+        .control-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .action-card { background-color: #0d1117; border: 1px solid #21262d; border-radius: 6px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; }
+        .action-title { font-size: 14px; font-weight: 500; }                                                                     
+        .btn-box { display: flex; gap: 8px; }
+        .btn { flex: 1; border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; background-color: #21262d; color: var(--text-primary); transition: background-color 0.2s, border-color 0.2s; text-align: center; }
+        .btn-start:hover { background-color: var(--green-glow); border-color: #2ea44f; color: white; }
+        .btn-stop:hover { background-color: var(--red-alert); border-color: #f85149; color: white; }
+        .btn-util { background-color: #1f6feb; border-color: #388bfd; color: white; }
+        .btn-util:hover { background-color: #388bfd; }
+        .btn-macro-kill { background-color: rgba(218, 54, 51, 0.1); border-color: var(--red-alert); color: #f85149; }
+        .btn-macro-kill:hover { background-color: var(--red-alert); color: white; }                                                                                 
+        .btn-macro-boot { background-color: rgba(46, 164, 79, 0.1); border-color: var(--green-glow); color: #56d364; }
+        .btn-macro-boot:hover { background-color: var(--green-glow); color: white; }
+        
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; margin-top: 5px; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--border-color); }
+        th { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+        tr:hover { background-color: #21262d; }
+        .currency { color: var(--green-glow); font-family: monospace; font-weight: bold; font-size: 14px;}
+        .classification-badge { font-size: 11px; padding: 4px 8px; background: #21262d; border-radius: 6px; color: var(--text-muted); }
+        .console-log { background-color: #05070a; border: 1px solid #21262d; border-radius: 6px; padding: 12px; font-family: monospace; font-size: 12px; color: #79c0ff; min-height: 40px; max-height: 120px; overflow-y: auto; line-height: 1.5; }
+        .chart-container { position: relative; height: 250px; width: 100%; background: #0d1117; border-radius: 6px; padding: 10px; border: 1px solid #21262d; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+<div id="auth-gateway">
+    <div class="auth-box">
+        <h2 style="color:#dbb8ff; margin-top:0;">🛡️ ZANNIE SYSTEM SECURE LOGIN</h2>
+        <p style="color:var(--text-muted); font-size:13px;">Enter administrator passkey to decrypt matrix.</p>
+        <input type="password" id="passkey" class="auth-input" placeholder="Passkey..." onkeydown="if(event.key === 'Enter') unlockSystem()">
+        <br>
+        <button class="btn btn-util" style="padding: 10px 30px; font-size: 14px;" onclick="unlockSystem()">AUTHORIZE</button>
+        <p id="auth-error" style="color:var(--red-alert); display:none; margin-top:15px; font-size:13px;">Critical Failure: Authentication Rejected.</p>
+    </div>
+</div>
+
+<div class="container" id="main-dashboard">
+    <div class="header-banner">                                                       
+        <h1>🌐 ZANNIE DIGITAL AUTOMATION SYSTEM</h1>
+        <p>Premium DevOps Infrastructure Central Command Interface Node</p>               
+    </div>
+                                                                                  
+    <div class="panel-grid">
+        <div class="card">                                                                
+            <div class="section-title">Telemetry Path Status Indicators</div>
+            <div class="path-row"><div class="path-info"><span class="indicator status-stopped" id="status-crawler"></span><span>Path A: Real Estate Crawler</span></div></div>
+            <div class="path-row"><div class="path-info"><span class="indicator status-stopped" id="status-crypto"></span><span>Path B: Crypto Volatility Bot</span></div></div>
+            <div class="path-row"><div class="path-info"><span class="indicator status-stopped" id="status-harvester"></span><span>Path C: Deal Harvester Daemon</span></div></div>
+            <div class="path-row"><div class="path-info"><span class="indicator status-stopped" id="status-api"></span><span>Path D: Core API Gateway Engine <span class="port-tag">Port 5005</span></span></div></div>
+            <div class="path-row"><div class="path-info"><span class="indicator status-stopped" id="status-http"></span><span>Path E: Frontend Web Server <span class="port-tag">Port 8080</span></span></div></div>
+            <div class="path-row"><div class="path-info"><span class="indicator status-stopped" id="status-verify"></span><span>Path F: Lagos Secure Verify <span class="port-tag">Port 5000</span></span></div></div>
+            <div class="path-row"><div class="path-info"><span class="indicator status-running" id="status-db"></span><span>Path G: Academic Stats Database <span class="port-tag" style="color:#56d364">SQLite Online</span></span></div></div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Control Panel Management Actions</div>
+            <div class="control-layout">
+                <div class="action-card"><span class="action-title">Real Estate Crawler Pipeline</span><div class="btn-box"><button class="btn btn-start" onclick="sendAction(1)">Start [1]</button><button class="btn btn-stop" onclick="sendAction(5)">Kill [5]</button></div></div>
+                <div class="action-card"><span class="action-title">Crypto Volatility Module</span><div class="btn-box"><button class="btn btn-start" onclick="sendAction(2)">Start [2]</button><button class="btn btn-stop" onclick="sendAction(6)">Kill [6]</button></div></div>
+                <div class="action-card"><span class="action-title">Deal Harvester Engine</span><div class="btn-box"><button class="btn btn-start" onclick="sendAction(14)">Start [14]</button><button class="btn btn-stop" onclick="sendAction(15)">Kill [15]</button></div></div>
+                <div class="action-card"><span class="action-title">Sandboxed HTTP Web Server</span><div class="btn-box"><button class="btn btn-start" onclick="sendAction(4)">Start [4]</button><button class="btn btn-stop" onclick="sendAction(8)">Kill [8]</button></div></div>
+                <div class="action-card"><span class="action-title">Lagos Secure Verify Gateway</span><div class="btn-box"><button class="btn btn-start" onclick="sendAction(9)">Start [9]</button><button class="btn btn-stop" onclick="sendAction(10)">Kill [10]</button></div></div>
+                <div class="action-card"><span class="action-title">Utilities & System Routines</span><div class="btn-box"><button class="btn btn-util" onclick="sendAction(12)">Compile Report [12]</button><button class="btn btn-util" onclick="sendAction(13)">Maintenance [13]</button></div></div>
+            </div>
+            <div class="section-title" style="margin-top:25px;">Global Stack System Macros</div>
+            <div class="btn-box">
+                <button class="btn btn-macro-boot" onclick="sendAction('A')">[A] Boot All Stack Infrastructure</button>
+                <button class="btn btn-macro-kill" onclick="sendAction('K')">[K] Kill All Environment Tasks</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span>📊 Live Market Asset Trajectory (Chart.js)</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="cryptoChartCanvas"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span>🇳🇬 Lagos Market Analytics Matrix</span>
+                <button class="btn btn-util" style="padding: 4px 10px; font-size: 10px;" onclick="fetchMarketMetrics()">SYNC DATA</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead><tr><th>Sector Location</th><th>Average Target Price</th><th>Active Leads</th><th>Classification Focus</th></tr></thead>
+                    <tbody id="metrics-table-body"><tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Establishing connection to SQLite matrices...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span>📈 Zany's Crypto Volatility Stream</span>
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">Ticks run live when Bot [2] is active</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead><tr><th>Asset Index</th><th>Market Value (USD)</th><th>24H Delta</th><th>Signal Output</th></tr></thead>
+                    <tbody id="crypto-table-body"><tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Connecting to telemetry stream...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span>🛒 Zannie Affiliate Harvester Matrix</span>
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: normal;">Refreshes when Harvester [14] is active</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead><tr><th>Platform & Gadget Target</th><th>Standard Retail</th><th>Discount Price</th><th>Margin Drop</th></tr></thead>
+                    <tbody id="deals-table-body"><tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Waiting for Deal Harvester telemetry...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">
+                <span>🛍️ Zannie Global Checkout Conversion Telemetry</span>
+                <span style="font-size: 11px; color: #58a6ff; font-family: monospace;">Base Context: 1.00 NGN</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead><tr><th>Target Currency</th><th>Live Multiplier Value</th><th>Relative Parity Matrix</th><th>Gateway Handshake Status</th></tr></thead>
+                    <tbody id="store-table-body"><tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">Quizzing exchange router array...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">System Activity Output Log</div>
+            <div class="console-log" id="console-stream">> System ready. Listening on execution stack hooks...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const BACKEND_URL = window.location.origin + "/api/v1/dashboard";
+    const STORE_URL = window.location.origin + "/api/v1/store";
+    let myLiveChart = null;
+
+    // --- AUTHENTICATION SYSTEM ---
+    function unlockSystem() {
+        const key = document.getElementById('passkey').value;
+        if(key === 'admin2026') {
+            document.getElementById('auth-gateway').style.display = 'none';
+            document.getElementById('main-dashboard').style.display = 'block';
+            initializeSystems();
+        } else {
+            document.getElementById('auth-error').style.display = 'block';
+        }
+    }
+
+    function logToConsole(message) {
+        const consoleEl = document.getElementById('console-stream');
+        const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
+        consoleEl.innerHTML = `[${timestamp}] > ${message}<br>${consoleEl.innerHTML}`;
+    }
+
+    function sendAction(actionId) {
+        logToConsole(`Dispatching Reference Action ID: [${actionId}] to background kernel...`);
+        fetch(`${BACKEND_URL}/execute`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: String(actionId) })
+        })
+        .then(res => res.json())
+        .then(data => {
+            logToConsole(`Response: ${data.message}`);
+            updateSystemStatus();
+            if(actionId == 1 || actionId == 'A') setTimeout(fetchMarketMetrics, 1500);
+            if(actionId == 2 || actionId == 'A') setTimeout(fetchCryptoTelemetry, 1500);
+            if(actionId == 14 || actionId == 'A') setTimeout(fetchDealsMatrix, 1500);
+        })
+        .catch(err => logToConsole(`Communication Fault: Failed to connect to Flask System API.`));                                                                       
+    }
+
+    // --- CHART.JS INITIALIZATION ---
+    function initChart() {
+        const ctx = document.getElementById('cryptoChartCanvas').getContext('2d');
+        myLiveChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [], 
+                datasets: [
+                    { label: 'BTC Price Trajectory', borderColor: '#f7931a', backgroundColor: 'rgba(247, 147, 26, 0.1)', data: [], tension: 0.3, fill: true },
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: {
+                    x: { grid: { color: '#30363d' }, ticks: { color: '#8b949e' } },
+                    y: { grid: { color: '#30363d' }, ticks: { color: '#8b949e' } }
+                },
+                plugins: { legend: { labels: { color: '#c9d1d9' } } },
+                animation: { duration: 400 }
+            }
+        });
+    }
+
+    function updateSystemStatus() {                                                   
+        fetch(`${BACKEND_URL}/status`)
+        .then(res => res.json())                                                      
+        .then(status => {
+            document.getElementById('status-crawler').className = status.crawler ? "indicator status-running" : "indicator status-stopped";
+            document.getElementById('status-crypto').className = status.crypto ? "indicator status-running" : "indicator status-stopped";
+            document.getElementById('status-harvester').className = status.harvester ? "indicator status-running" : "indicator status-stopped";
+            document.getElementById('status-api').className = status.api ? "indicator status-running" : "indicator status-stopped";
+            document.getElementById('status-http').className = status.http ? "indicator status-running" : "indicator status-stopped";
+            document.getElementById('status-verify').className = status.verify ? "indicator status-running" : "indicator status-stopped";
+        })
+        .catch(() => {});
+    }
+
+    function fetchMarketMetrics() {
+        fetch(`${BACKEND_URL}/metrics`)
+        .then(res => res.json())
+        .then(jsonRes => {
+            if (jsonRes.status === "success") {
+                const tbody = document.getElementById("metrics-table-body");
+                tbody.innerHTML = ""; 
+                if(jsonRes.data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Database empty. Run crawler task to begin.</td></tr>`;
+                    return;
+                }
+                jsonRes.data.forEach(item => {
+                    const row = document.createElement("tr");
+                    const formattedPrice = new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 }).format(item.average_price);
+                    row.innerHTML = `<td style="font-weight: 500;">${item.location}</td><td class="currency">${formattedPrice}</td><td>${item.active_listings} listings</td><td><span class="classification-badge">${item.classification}</span></td>`;
+                    tbody.appendChild(row);
+                });
+            }
+        });
+    }
+
+    function fetchCryptoTelemetry() {
+        fetch(`${BACKEND_URL}/crypto`)
+        .then(res => res.json())
+        .then(jsonRes => {
+            if (jsonRes.status === "success") {
+                const tbody = document.getElementById("crypto-table-body");
+                tbody.innerHTML = "";
+                let btcPrice = 0;
+
+                jsonRes.data.forEach(item => {
+                    const row = document.createElement("tr");
+                    const colorGlow = item.change_24h >= 0 ? "var(--green-glow)" : "var(--red-alert)";
+                    const sign = item.change_24h >= 0 ? "+" : "";
+                    row.innerHTML = `
+                        <td style="font-weight: 600; font-family: monospace;">${item.asset}</td>
+                        <td style="font-weight: bold; font-family: monospace;">$${item.price.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        <td style="color: ${colorGlow}; font-family: monospace; font-weight: 500;">${sign}${item.change_24h}%</td>
+                        <td><span class="classification-badge" style="color: ${colorGlow}; border-color: ${colorGlow};">${item.status}</span></td>
+                    `;
+                    tbody.appendChild(row);
+                    
+                    if(item.asset.includes("BTC")) btcPrice = item.price;
+                });
+
+                // Update Chart.js Data Live
+                if(btcPrice > 0 && myLiveChart) {
+                    const timeNow = new Date().toLocaleTimeString('en-US', { hour12: false });
+                    if(myLiveChart.data.labels.length > 10) {
+                        myLiveChart.data.labels.shift();
+                        myLiveChart.data.datasets[0].data.shift();
+                    }
+                    myLiveChart.data.labels.push(timeNow);
+                    myLiveChart.data.datasets[0].data.push(btcPrice);
+                    myLiveChart.update();
+                }
+            }
+        });
+    }
+
+    function fetchDealsMatrix() {
+        fetch(`${BACKEND_URL}/deals`)
+        .then(res => res.json())
+        .then(jsonRes => {
+            if (jsonRes.status === "success") {
+                const tbody = document.getElementById("deals-table-body");
+                tbody.innerHTML = ""; 
+                if(!jsonRes.data || jsonRes.data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No active deals harvested yet. Boot Path C.</td></tr>`;
+                    return;
+                }
+                jsonRes.data.forEach(item => {
+                    const row = document.createElement("tr");
+                    
+                    // Color code platforms
+                    let pColor = "#dbb8ff";
+                    if(item.device.includes("Amazon")) pColor = "#ff9900";
+                    if(item.device.includes("Jumia")) pColor = "#f68b1e";
+                    if(item.device.includes("AliExpress")) pColor = "#e62e04";
+
+                    row.innerHTML = `
+                        <td style="font-weight: 600;"><a href="${item.link}" target="_blank" style="color:${pColor}; text-decoration:none;">${item.device} ↗</a></td>
+                        <td style="text-decoration: line-through; color: var(--text-muted);">$${item.original.toFixed(2)}</td>
+                        <td style="color: var(--green-glow); font-weight: bold;">$${item.discount.toFixed(2)}</td>
+                        <td><span class="classification-badge" style="background-color: var(--green-glow); color: white; border: none;">-${item.savings}% OFF</span></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        })
+        .catch(err => console.error("Deals Matrix Sync Error:", err));
+    }
+
+    function fetchStoreRates() {
+        fetch(`${STORE_URL}/rates`)
+        .then(res => res.json())
+        .then(jsonRes => {
+            if (jsonRes.status === "success") {
+                const tbody = document.getElementById("store-table-body");
+                tbody.innerHTML = "";
+                
+                Object.entries(jsonRes.rates).forEach(([currency, rate]) => {
+                    const row = document.createElement("tr");
+                    const baseItemPriceNGN = 50000;
+                    const computedEquivalent = (baseItemPriceNGN * rate).toLocaleString(undefined, { minimumFractionDigits: 2 });
+                    
+                    row.innerHTML = `
+                        <td style="font-weight: 600; color: #dbb8ff;">${currency}</td>
+                        <td style="font-family: monospace; font-weight: bold;">${rate.toFixed(7)}</td>
+                        <td style="color: var(--text-muted);">50,000 ₦ = <span style="color: var(--text-primary); font-weight:500;">${computedEquivalent} ${currency}</span></td>
+                        <td><span class="classification-badge" style="color: var(--green-glow); border-color: var(--green-glow);">ONLINE</span></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        })
+        .catch(err => console.error("Store Rates Sync Error:", err));
+    }
+
+    function initializeSystems() {
+        initChart();
+        updateSystemStatus();
+        fetchMarketMetrics();
+        fetchCryptoTelemetry();
+        fetchDealsMatrix();
+        fetchStoreRates();
+        
+        setInterval(updateSystemStatus, 3000);
+        setInterval(fetchMarketMetrics, 10000);
+        setInterval(fetchCryptoTelemetry, 4000); // Drives the chart
+        setInterval(fetchDealsMatrix, 15000);
+        setInterval(fetchStoreRates, 15000);
+    }
+</script>
+</body>
+</html>

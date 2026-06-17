@@ -1,0 +1,46 @@
+==================================================================
+                 ZANY ACADEMIC PREPARATION TUTORIALS
+              OFFICIAL MARKING SCHEME & SOLUTION KEY
+==================================================================
+Focus Area: Non-Linear Simultaneous Systems (IGCSE Extended / WAEC)
+Subject: Mathematics
+
+DETAILED ALGEBRAIC BREAKDOWN FOR QUESTION 1:
+Given Equations:
+(1) y = 2x² - 5x + 3
+(2) y = 3x - 1
+
+STEP 1: Equate both expressions for y via substitution
+   2x² - 5x + 3 = 3x - 1
+   
+STEP 2: Rearrange into the standard quadratic form (ax² + bx + c = 0)
+   2x² - 5x - 3x + 3 + 1 = 0
+   2x² - 8x + 4 = 0
+   
+STEP 3: Simplify the quadratic equation by dividing all terms by 2
+   x² - 4x + 2 = 0                                       [M1 Mark]
+
+STEP 4: Apply the Quadratic Formula: x = [-b ± √(b² - 4ac)] / 2a
+   Here, a = 1, b = -4, c = 2
+   x = [-(-4) ± √((-4)² - 4(1)(2))] / 2(1)
+   x = [4 ± √(16 - 8)] / 2
+   x = [4 ± √8] / 2
+   x = [4 ± 2√2] / 2
+   x = 2 ± √2                                            [M1 Mark]
+
+Real-value Decimal Solutions for x (to 2 decimal places):
+   x₁ = 2 + 1.41 = 3.41
+   x₂ = 2 - 1.41 = 0.59                                  [A1 Mark]
+
+STEP 5: Substitute x values back into Equation (2) to find corresponding y values
+   For x₁ = 3.41:
+   y₁ = 3(3.41) - 1 = 10.23 - 1 = 9.23
+   
+   For x₂ = 0.59:
+   y₂ = 3(0.59) - 1 = 1.77 - 1 = 0.77                     [A1 Mark]
+
+FINAL ANSWER COORDINATE PAIRS:
+   Coordinates: (3.41, 9.23) and (0.59, 0.77)            [A1 Mark]
+------------------------------------------------------------------
+TOTAL MARKS ALLOCATED: 5 MARKS
+==================================================================

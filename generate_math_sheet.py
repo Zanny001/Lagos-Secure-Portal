@@ -1,0 +1,102 @@
+import os
+import time
+
+def build_math_material():
+    print("[*] Initializing generation of curriculum-aligned mathematics sheets...")
+    timestamp = time.strftime('%B %Y')
+
+    math_content = f"""==================================================================
+              ZANNIE ACADEMIC PREPARATION TUTORIALS
+            ADVANCED MATHEMATICS: TRIGONOMETRY & PROBABILITY
+==================================================================
+Topic Focus: Non-Right-Angled Triangles & Discrete Probability Distributions
+Curriculum Standards: IGCSE / WAEC / International Foundation Standard
+Date: {timestamp}
+Instructor: Elebute Hassan Oluwafemi
+
+------------------------------------------------------------------
+SECTION 1: THE TRIGONOMETRIC MATRIX (NON-RIGHT TRIANGLES)
+------------------------------------------------------------------
+For any triangle ABC with corresponding opposite side lengths a, b, and c:
+
+1. The Sine Rule:
+   Used when given two angles and one side, or two sides and a non-included angle.
+   - Formula: a / sin(A) = b / sin(B) = c / sin(C)
+
+2. The Cosine Rule:
+   Used when given three sides (SSS) or two sides and the included angle (SAS).
+   - Finding a side:  a^2 = b^2 + c^2 - 2bc * cos(A)
+   - Finding an angle: cos(A) = (b^2 + c^2 - a^2) / (2bc)
+
+------------------------------------------------------------------
+SECTION 2: DISCRETE PROBABILITY DISTRIBUTIONS
+------------------------------------------------------------------
+Core Principles:
+1. The sum of all individual probabilities in a discrete probability 
+   distribution chart must equal exactly 1: Sum(P(X = x)) = 1.
+2. Expected Value (Mean), E(X): E(X) = Sum(x * P(X = x))
+
+------------------------------------------------------------------
+SECTION 3: STUDENT PRACTICE ASSESSMENT (MAT-TRIG-05)
+==================================================================
+
+PART A: MULTIPLE CHOICE QUESTIONS (2 MARKS EACH)
+
+1. In triangle ABC, side b = 8 cm, angle B = 30°, and angle C = 45°. 
+   Calculate the exact length of side c.
+   A) 8√2 cm       B) 4√2 cm       C) 8 cm         D) 16 cm
+
+2. A discrete random variable X has the following probability distribution:
+   X      |  1   |  2   |  3
+   P(X=x) | 0.2  |  k   | 0.5
+   Find the value of the constant k.
+   A) 0.1          B) 0.3          C) 0.4          D) 0.7
+
+PART B: STRUCTURED THEORY QUESTIONS (10 MARKS EACH)
+
+3. In a triangle XYZ, side x = 7 cm, side y = 5 cm, and side z = 8 cm.
+   (a) Determine the size of the largest angle in the triangle to the nearest degree. [6 Marks]
+   (b) Calculate the total area of triangle XYZ using Area = 0.5 * x * y * sin(Z). [4 Marks]
+
+4. A spinner is weighted so that it lands on scores of 0, 2, or 4 with the following probabilities:
+   P(X = 0) = 0.4,  P(X = 2) = 0.3,  P(X = 4) = 0.3.
+   (a) Construct a clear probability distribution table for X. [3 Marks]
+   (b) Calculate the Expected Value E(X) of the spinner scores. [4 Marks]
+   (c) State what E(X) represents regarding long-run observations. [3 Marks]
+
+------------------------------------------------------------------
+SECTION 4: STEP-BY-STEP MARKING SCHEME & SOLUTIONS KEY
+------------------------------------------------------------------
+ANSWERS TO PART A:
+1. A — By the Sine Rule: c / sin(45°) = 8 / sin(30°)
+       c / (1/√2) = 8 / (0.5) -> c * √2 = 16 -> c = 16 / √2 = 8√2 cm.
+2. B — The sum of probabilities must equal 1: 0.2 + k + 0.5 = 1 -> 0.7 + k = 1 -> k = 0.3.
+
+ANSWERS TO PART B:
+3. (a) The largest angle is always opposite the longest side. Thus, find angle Z opposite z = 8 cm.
+       cos(Z) = (x^2 + y^2 - z^2) / (2xy)
+       cos(Z) = (7^2 + 5^2 - 8^2) / (2 * 7 * 5)
+       cos(Z) = (49 + 25 - 64) / 70 = 10 / 70 = 1/7
+       Z = cos^-1(1/7) ≈ 81.78° -> Nearest degree = 82°. [6 Marks]
+   (b) Area = 0.5 * x * y * sin(Z)
+       Area = 0.5 * 7 * 5 * sin(81.78°) = 17.5 * 0.9897 ≈ 17.32 cm^2. [4 Marks]
+
+4. (a) Distribution Table:
+       X      |  0   |  2   |  4
+       P(X=x) | 0.4  | 0.3  | 0.3  [3 Marks]
+   (b) E(X) = Sum(x * P(X))
+       E(X) = (0 * 0.4) + (2 * 0.3) + (4 * 0.3)
+       E(X) = 0 + 0.6 + 1.2 = 1.8. [4 Marks]
+   (c) E(X) represents the theoretical long-run average score obtained per spin if the spinner were spun an infinite number of times. [3 Marks]
+==================================================================
+"""
+
+    # Save the compiled lesson sheet cleanly to your workspace
+    output_filename = "math_advanced_worksheet.txt"
+    with open(output_filename, "w") as f:
+        f.write(math_content.strip())
+    print(f"[+] Successfully compiled: {output_filename}")
+
+if __name__ == "__main__":
+    build_math_material()
+

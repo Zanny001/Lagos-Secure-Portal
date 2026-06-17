@@ -1,0 +1,27 @@
+#!/bin/bash
+
+echo -e "\n\033[1m=== SYSTEM PROCESS MONITOR LOGS ===\033[0m"
+
+# 1. Inspect True Backend Python Engine
+echo -e "\n\033[94m[*] Checking Unified Backend Server (realestate_api.py):\033[0m"
+API_PID=$(pgrep -f realestate_api.py)
+if [ -z "$API_PID" ]; then
+    echo -e "    \033[91m[OFFLINE]\033[0m No active backend Python process found."
+else
+    echo -e "    \033[92m[ONLINE]\033[0m Active Thread ID(s): $API_PID"
+    # Show resource usage metrics for the process
+    ps -p $API_PID -o pid,ppid,%cpu,%mem,cmd | sed 's/^/    /'
+fi
+
+# 2. Inspect LocalTunnel Proxy Socket Network Pipeline
+echo -e "\n\033[94m[*] Checking Public Network Tunnel Proxy (lt):\033[0m"
+TUNNEL_PID=$(pgrep -f "lt --port")
+if [ -z "$TUNNEL_PID" ]; then
+    echo -e "    \033[91m[OFFLINE]\033[0m LocalTunnel proxy pipe is broken or closed."
+else
+    echo -e "    \033[92m[ONLINE]\033[0m Active Proxy Thread ID(s): $TUNNEL_PID"
+    echo -e "    Current Saved Connection Logs:"
+    tail -n 3 /home/userland/Lagos-Secure-Portal/realestate_api_tunnel.log | sed 's/^/    /'
+fi
+
+echo -e "\n\033[1m===================================\033[0m\n"
