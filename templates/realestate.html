@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zannie Real Estate Intelligence Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --card-bg: #111827;
+            --accent-cyan: #38bdf8;
+            --accent-green: #4ade80;
+            --text-main: #f8fafc;
+            --text-muted: #64748b;
+            --border-color: #1e293b;
+            --accent-red: #f43f5e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); padding: 24px; min-height: 100vh; }
+        
+        .back-btn { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 20px; transition: color 0.2s; }
+        .back-btn:hover { color: var(--accent-cyan); }
+
+        header {
+            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+            padding: 24px; border-radius: 16px; border: 1px solid var(--border-color);
+            margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+        }
+        header h1 { font-size: 1.6rem; font-weight: 800; tracking: -0.025em; color: var(--text-main); margin-bottom: 4px; }
+        header h1 span { color: var(--accent-cyan); }
+        
+        .status-container { display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 700; background: rgba(0,0,0,0.3); padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border-color); }
+        .status-dot { width: 8px; height: 8px; background-color: var(--accent-red); border-radius: 50%; }
+        .status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 10px var(--accent-green); }
+
+        .control-bar { display: flex; gap: 16px; margin-bottom: 24px; }
+        .search-container { flex: 1; position: relative; }
+        .search-container i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.95rem; }
+        .search-box { width: 100%; padding: 14px 14px 14px 44px; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-main); font-size: 0.95rem; outline: none; transition: all 0.2s; }
+        .search-box:focus { border-color: var(--accent-cyan); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15); }
+        
+        .sort-dropdown { padding: 14px 20px; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; color: var(--text-main); font-size: 0.95rem; font-weight: 600; outline: none; cursor: pointer; min-width: 200px; transition: border-color 0.2s; }
+        .sort-dropdown:focus { border-color: var(--accent-cyan); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+        .metric-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; transition: all 0.2s; display: flex; flex-direction: column; justify-content: space-between; }
+        .metric-card:hover { transform: translateY(-2px); border-color: #334155; box-shadow: 0 12px 20px -10px rgba(0,0,0,0.5); }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+        .location-title { font-weight: 700; font-size: 1.1rem; color: var(--text-main); tracking: -0.01em; }
+        .class-badge { font-size: 0.7rem; background: rgba(56, 189, 248, 0.1); color: var(--accent-cyan); font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; border: 1px solid rgba(56, 189, 248, 0.15); }
+        
+        .price-row { font-size: 1.6rem; font-weight: 800; color: var(--accent-green); font-family: monospace; margin-bottom: 16px; }
+        
+        .meta-details { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.02); display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.8rem; margin-bottom: 14px; }
+        .meta-label { color: var(--text-muted); display: block; margin-bottom: 2px; }
+        .meta-val { color: var(--text-main); font-weight: 600; }
+
+        .listings-count { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; border-top: 1px solid var(--border-color); padding-top: 12px; }
+        
+        @media (max-width: 768px) {
+            .control-bar { flex-direction: column; gap: 12px; }
+            .sort-dropdown { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Main Hub</a>
+    
+    <header>
+        <div>
+            <h1>🏙️ REAL ESTATE <span>ANALYTICS</span></h1>
+            <p style="color: var(--text-muted); font-size: 0.9rem; font-weight: 500;">Lagos Commercial Sector Telemetry</p>
+        </div>
+        <div class="status-container">
+            <div id="statusDot" class="status-dot"></div>
+            <span id="statusText">Connecting...</span>
+        </div>
+    </header>
+
+    <div class="control-bar">
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" class="search-box" placeholder="Search operational sectors (e.g. Lekki, Ikoyi)..." onkeyup="filterAndSortSectors()">
+        </div>
+
+        <select id="sortControl" class="sort-dropdown" onchange="filterAndSortSectors()">
+            <option value="default">↕️ Default Sorting</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="sc_asc">Lowest Service Charge</option>
+            <option value="area_desc">Largest Floor Area</option>
+            <option value="value_asc">Best Value (₦/m²)</option>
+        </select>
+    </div>
+
+    <div class="stats-grid" id="metricsGrid"></div>
+
+    <script>
+        const fallbackRealEstate = [
+            { location: "Lekki Phase 1 Sector", price: 125000000, listings: 14, class: "Premium Residential", service_charge: 2500000, total_area_sqm: 400, price_per_sqm: 312500 },
+            { location: "Alaba International Segment", price: 45000000, listings: 28, class: "Commercial Hub", service_charge: 0, total_area_sqm: 120, price_per_sqm: 375000 },
+            { location: "Ikeja GRA Block", price: 95000000, listings: 9, class: "Premium Residential", service_charge: 1800000, total_area_sqm: 350, price_per_sqm: 271428 },
+            { location: "VGC Waterfront Sector", price: 150000000, listings: 6, class: "High-End Estate", service_charge: 3000000, total_area_sqm: 600, price_per_sqm: 250000 }
+        ];
+
+        const CURRENT_BACKEND_TUNNEL = "https://eight-tools-create.loca.lt";
+        const API_ENDPOINT = `${CURRENT_BACKEND_TUNNEL}/api/metrics`;
+
+        function renderCards(data) {
+            const grid = document.getElementById("metricsGrid");
+            grid.innerHTML = "";
+            data.forEach(item => {
+                const scText = item.service_charge && item.service_charge > 0 ? `₦${Number(item.service_charge).toLocaleString()}` : "None";
+                const sqmText = item.total_area_sqm ? `${Number(item.total_area_sqm).toLocaleString()} m²` : "N/A";
+                const unitPriceText = item.price_per_sqm ? `₦${Number(item.price_per_sqm).toLocaleString()}/m²` : "N/A";
+
+                const card = document.createElement("div");
+                card.className = "metric-card";
+                card.innerHTML = `
+                    <div>
+                        <div class="card-header">
+                            <span class="location-title">${item.location}</span>
+                            <span class="class-badge">${item.class}</span>
+                        </div>
+                        <div class="price-row">₦${Number(item.price).toLocaleString()}</div>
+                        
+                        <div class="meta-details">
+                            <div>
+                                <span class="meta-label">Maint. Fee</span>
+                                <span class="meta-val">${scText}</span>
+                            </div>
+                            <div>
+                                <span class="meta-label">Floor Area</span>
+                                <span class="meta-val">${sqmText}</span>
+                            </div>
+                            <div style="grid-column: span 2; margin-top: 4px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
+                                <span class="meta-label">Valuation Unit Cost</span>
+                                <span class="meta-val" style="color:var(--accent-cyan); font-family: monospace;">${unitPriceText}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="listings-count">
+                        <i class="fa-solid fa-chart-simple" style="color:var(--accent-cyan);"></i> Active Data Points: <strong style="color:var(--text-main);">${item.listings}</strong>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        async function init() {
+            const dot = document.getElementById("statusDot");
+            const text = document.getElementById("statusText");
+            try {
+                const res = await fetch(API_ENDPOINT, { headers: { "Bypass-Tunnel-Reminder": "true" } });
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                window.cache = data;
+                dot.classList.add("online"); text.innerText = "Live Telemetry";
+                filterAndSortSectors();
+            } catch (e) {
+                window.cache = fallbackRealEstate;
+                dot.classList.remove("online"); text.innerText = "Offline Cache Mode";
+                filterAndSortSectors();
+            }
+        }
+
+        function filterAndSortSectors() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+            const sortBy = document.getElementById("sortControl").value;
+
+            let processedData = window.cache.filter(item =>
+                item.location.toLowerCase().includes(query) ||
+                item.class.toLowerCase().includes(query)
+            );
+
+            if (sortBy === "price_asc") { processedData.sort((a, b) => a.price - b.price); }
+            else if (sortBy === "price_desc") { processedData.sort((a, b) => b.price - a.price); }
+            else if (sortBy === "sc_asc") { processedData.sort((a, b) => (a.service_charge || 0) - (b.service_charge || 0)); }
+            else if (sortBy === "area_desc") { processedData.sort((a, b) => (b.total_area_sqm || 0) - (a.total_area_sqm || 0)); }
+            else if (sortBy === "value_asc") {
+                processedData.sort((a, b) => (a.price_per_sqm || 99999999) - (b.price_per_sqm || 99999999));
+            }
+            renderCards(processedData);
+        }
+        window.onload = init;
+    </script>
+</body>
+</html>

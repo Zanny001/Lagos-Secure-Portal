@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zannie Academic Performance & Syllabus Suite</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --accent-purple: #a855f7;
+            --accent-blue: #3b82f6;
+            --accent-green: #4ade80;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --accent-red: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); padding: 20px; }
+
+        header {
+            background: linear-gradient(135deg, #3b0764, #1e293b);
+            padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);
+            margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;
+        }
+        header h1 { font-size: 1.5rem; color: var(--accent-purple); letter-spacing: 0.5px; }
+
+        .status-container { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+        .status-dot { width: 8px; height: 8px; background-color: var(--accent-red); border-radius: 50%; }
+        .status-dot.online { background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green); }
+
+        .back-btn { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 15px; }
+        .back-btn:hover { color: var(--accent-purple); }
+
+        /* Navigation Layout Tabs inside Dashboard */
+        .section-header {
+            font-size: 1.3rem;
+            color: var(--text-main);
+            margin: 25px 0 15px 0;
+            border-left: 4px solid var(--accent-purple);
+            padding-left: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .search-box {
+            width: 100%; padding: 14px; background-color: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 8px; color: var(--text-main); font-size: 1rem; outline: none; margin-bottom: 20px;
+        }
+        .search-box:focus { border-color: var(--accent-purple); }
+
+        /* Grid Framework for Student Profiles */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .metric-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 18px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #2d3748; padding-bottom: 8px; }
+        .score-row { font-size: 1.6rem; font-weight: bold; color: var(--accent-green); margin-bottom: 8px; }
+
+        /* Split-Screen Curriculum Explorer Layout */
+        .syllabus-workspace {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        @media(min-width: 768px) {
+            .syllabus-workspace { grid-template-columns: 320px 1fr; }
+        }
+
+        .syllabus-sidebar {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .lesson-nav-item {
+            padding: 12px;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .lesson-nav-item:hover {
+            background-color: rgba(168, 85, 247, 0.1);
+            border-color: var(--accent-purple);
+        }
+        .lesson-nav-item.active {
+            background-color: rgba(168, 85, 247, 0.2);
+            border-color: var(--accent-purple);
+        }
+
+        .lesson-nav-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 4px; }
+        .lesson-nav-meta { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+
+        .syllabus-viewer-panel {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            min-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Generated Markdown to HTML Styling Overrides */
+        .syllabus-content h2 { color: var(--accent-purple); margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; }
+        .syllabus-content h3 { color: var(--accent-blue); margin-top: 20px; margin-bottom: 10px; }
+        .syllabus-content p { color: var(--text-light); line-height: 1.6; margin-bottom: 15px; font-size: 0.95rem; }
+        .syllabus-content blockquote { background: rgba(59, 130, 246, 0.05); border-left: 4px solid var(--accent-blue); padding: 15px; margin: 15px 0; font-style: italic; border-radius: 0 6px 6px 0; }
+        .syllabus-content ul, .syllabus-content ol { margin-left: 20px; margin-bottom: 15px; color: var(--text-light); line-height: 1.6; }
+        .syllabus-content li { margin-bottom: 6px; }
+        .syllabus-content hr { border: none; border-top: 1px solid var(--border-color); margin: 20px 0; }
+        .placeholder-message { color: var(--text-muted); text-align: center; padding-top: 100px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <a href="/dev-admin" class="back-btn">← Back to Main Hub</a>
+    <header>
+        <div>
+            <h1>🎓 ACADEMIC OPERATIONS CENTER</h1>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Student Assessment Records & Dynamic Material Manager</p>
+        </div>
+        <div class="status-container">
+            <div id="statusDot" class="status-dot"></div>
+            <span id="statusText">Connecting Pipeline Streams...</span>
+        </div>
+    </header>
+
+    <div class="section-header">Active Student Telemetry Profiles</div>
+    <input type="text" id="studentSearch" class="search-box" placeholder="🔍 Filter metrics by student name or track program..." onkeyup="filterStudents()">
+    <div class="stats-grid" id="studentsGrid"></div>
+
+    <div class="section-header">Interactive Curriculum & Resource Matrix</div>
+    <div class="syllabus-workspace">
+        <div class="syllabus-sidebar" id="syllabusSidebar">
+            <div style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 20px;">Loading curriculum index node...</div>
+        </div>
+
+        <div class="syllabus-viewer-panel" id="syllabusViewer">
+            <div class="placeholder-message">Select an academic resource file module from the sidebar index to open the telemetry reader view.</div>
+        </div>
+    </div>
+
+    <script>
+        // High-Fidelity Local Fallbacks for Absolute Resiliency
+        const fallbackStudents = [
+            { name: "Kehinde", track: "WAEC Preparatory", average: 88.5, attendance: 95.0 },
+            { name: "Tooki", track: "IGCSE Extended", average: 82.1, attendance: 92.0 },
+            { name: "Odutana Agboola", track: "WAEC Science", average: 79.4, attendance: 88.0 },
+            { name: "Demi", track: "IGCSE Core", average: 85.0, attendance: 94.0 }
+        ];
+
+        // ==============================================================================
+        // CONFIGURATION: SET CURRENT BACKEND TUNNEL URL HERE
+        // ==============================================================================
+        // Run 'cat realestate_api_tunnel.log' to get your active backend proxy address.
+        const CURRENT_BACKEND_TUNNEL = "https://eight-tools-create.loca.lt"; 
+
+        const API_STUDENTS = `${CURRENT_BACKEND_TUNNEL}/api/students`;
+        const API_SYLLABUS = `${CURRENT_BACKEND_TUNNEL}/api/syllabus`;
+
+        let studentCache = [];
+        let syllabusCache = [];
+
+        function renderStudentCards(data) {
+            const grid = document.getElementById("studentsGrid");
+            grid.innerHTML = "";
+            if(data.length === 0) {
+                grid.innerHTML = `<div style="color: var(--text-muted); padding:10px;">No matching student matrices found.</div>`;
+                return;
+            }
+            data.forEach(student => {
+                const card = document.createElement("div");
+                card.className = "metric-card";
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span style="font-weight:700; font-size:1.1rem;">${student.name}</span>
+                        <span style="font-size:0.75rem; color:var(--accent-purple); font-weight:bold;">${student.track}</span>
+                    </div>
+                    <div class="score-row">${Number(student.average).toFixed(1)}%</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">Cumulative Attendance: <strong>${Number(student.attendance).toFixed(1)}%</strong></div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderSyllabusSidebar(lessons) {
+            const sidebar = document.getElementById("syllabusSidebar");
+            sidebar.innerHTML = "";
+            if(lessons.length === 0) {
+                sidebar.innerHTML = `<div style="color:var(--text-muted); font-size:0.85rem; text-align:center;">No lesson nodes generated.</div>`;
+                return;
+            }
+            lessons.forEach((lesson, index) => {
+                const item = document.createElement("div");
+                item.className = "lesson-nav-item";
+                item.setAttribute("id", `nav-item-${index}`);
+                item.onclick = () => viewLessonContent(index);
+                item.innerHTML = `
+                    <div class="lesson-nav-title">${lesson.title}</div>
+                    <div class="lesson-nav-meta">${lesson.subject} • ${lesson.track}</div>
+                `;
+                sidebar.appendChild(item);
+            });
+        }
+
+        function viewLessonContent(index) {
+            document.querySelectorAll('.lesson-nav-item').forEach(el => el.classList.remove('active'));
+
+            const activeNav = document.getElementById(`nav-item-${index}`);
+            if(activeNav) activeNav.classList.add('active');
+
+            const viewer = document.getElementById("syllabusViewer");
+            const lesson = syllabusCache[index];
+
+            viewer.innerHTML = `
+                <div class="syllabus-content">
+                    <div style="font-size:0.8rem; text-transform:uppercase; color:var(--accent-purple); font-weight:bold; margin-bottom:5px;">
+                        ${lesson.subject} / ${lesson.track}
+                    </div>
+                    ${lesson.content_html}
+                </div>
+            `;
+        }
+
+        async function initDashboardPipeline() {
+            const dot = document.getElementById("statusDot");
+            const text = document.getElementById("statusText");
+
+            let studentSuccess = false;
+            let syllabusSuccess = false;
+
+            // 1. Load Student Profiles Telemetry
+            try {
+                const res = await fetch(API_STUDENTS, { headers: { "Bypass-Tunnel-Reminder": "true" } });
+                if (!res.ok) throw new Error();
+                studentCache = await res.json();
+                studentSuccess = true;
+            } catch (e) {
+                studentCache = fallbackStudents;
+                console.log("[-] Student pipeline unreachable. Standard default local array mapped.");
+            }
+            renderStudentCards(studentCache);
+
+            // 2. Load Parsed HTML Syllabus Manifest Nodes
+            try {
+                const res = await fetch(API_SYLLABUS, { headers: { "Bypass-Tunnel-Reminder": "true" } });
+                if (!res.ok) throw new Error();
+                syllabusCache = await res.json();
+                syllabusSuccess = true;
+            } catch (e) {
+                syllabusCache = [{
+                    title: "System Local Resiliency Safeguard",
+                    subject: "General",
+                    track: "FALLBACK",
+                    content_html: "<h2>Telemetry Link Interrupted</h2><p>The interactive dashboard is currently running in decoupled offline mode. Run <code>compile_lessons.py</code> or restart your local tunnel to populate streaming data.</p>"
+                }];
+            }
+            renderSyllabusSidebar(syllabusCache);
+
+            // Update network link configuration status indicators
+            if (studentSuccess && syllabusSuccess) {
+                dot.className = "online";
+                text.innerText = "All Pipeline Links Synchronized & Live";
+            } else {
+                dot.classList.remove("online");
+                text.innerText = "Pipeline Interrupted (Local Sandbox Resiliency Active)";
+            }
+        }
+
+        function filterStudents() {
+            const query = document.getElementById("studentSearch").value.toLowerCase();
+            const filtered = studentCache.filter(s => s.name.toLowerCase().includes(query) || s.track.toLowerCase().includes(query));
+            renderStudentCards(filtered);
+        }
+
+        window.onload = initDashboardPipeline;
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zannie Harvester — Real Estate Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-emerald-500 selection:text-black">
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
+        
+        <header class="border-b border-slate-800 pb-6 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent flex items-center gap-2">
+                    <i class="fa-solid fa-city text-emerald-400"></i> REAL ESTATE HARVESTER
+                </h1>
+                <p class="text-sm text-slate-400 mt-1">Premium real estate listing acquisition pipeline.</p>
+            </div>
+            <div class="flex gap-4 items-center self-stretch md:self-auto justify-between md:justify-end">
+                <a href="/dev-admin" class="text-xs bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 px-4 py-2.5 rounded-lg transition-all font-mono flex items-center gap-2">
+                    <i class="fa-solid fa-house-laptop"></i> Master Control
+                </a>
+                <div class="text-xs bg-emerald-950/40 border border-emerald-500/20 px-3 py-2.5 rounded-lg font-mono text-emerald-400 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Properties Ingested: <strong class="text-white">{{ leads|length }}</strong>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex space-x-1 bg-slate-900 p-1 rounded-t-xl border border-slate-800 border-b-0 max-w-md">
+            <a href="/harvester/corporate" class="flex-1 text-center px-4 py-2.5 text-xs font-bold text-slate-400 hover:text-white rounded-lg transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-briefcase text-slate-500"></i> Corporate Intel
+            </a>
+            <a href="/harvester/properties" class="flex-1 text-center px-4 py-2.5 text-xs font-bold bg-emerald-600/10 text-emerald-400 rounded-lg border border-emerald-500/20 flex items-center justify-center gap-2 shadow-sm">
+                <i class="fa-solid fa-building text-emerald-400"></i> Real Estate
+            </a>
+        </div>
+
+        <main class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-b-xl rounded-tr-xl shadow-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300 border-collapse">
+                    <thead class="bg-slate-950/80 text-xs uppercase text-slate-400 font-bold tracking-wider border-b border-slate-800">
+                        <tr>
+                            <th class="px-6 py-4.5">Asset Profile</th>
+                            <th class="px-6 py-4.5">Geographic Sector</th>
+                            <th class="px-6 py-4.5">Valuation (NGN)</th>
+                            <th class="px-6 py-4.5">Communication Vectors</th>
+                            <th class="px-6 py-4.5 text-right">Ingestion Stamp</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60">
+                        {% for lead in leads %}
+                        <tr class="hover:bg-slate-800/40 transition-all duration-150">
+                            <td class="px-6 py-5">
+                                <div class="flex items-center gap-2">
+                                    <div class="font-bold text-white text-base tracking-tight">{{ lead[1] }}</div>
+                                    {% if lead[6] %}
+                                    <a href="{{ lead[6] }}" target="_blank" class="text-slate-500 hover:text-emerald-400 transition-all text-xs" title="View Source Website">
+                                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                <div class="text-[10px] bg-slate-800 inline-block px-2 py-0.5 rounded border border-slate-700/60 text-slate-400 font-mono mt-1">ASSET_ID: #{{ lead[0] }}</div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-950 border border-slate-800 text-teal-300">
+                                    <i class="fa-solid fa-location-dot text-emerald-400/80"></i> {{ lead[2] }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="font-mono font-bold text-emerald-400 text-base">
+                                    {% if lead[3] %}₦ {{ "{:,.2f}".format(lead[3] | float) }}{% else %}Price on Request{% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-col gap-1.5 dynamic-contact-wrapper">
+                                    {% if lead[4] and '@' in lead[4] %}
+                                    <a href="mailto:{{ lead[4] }}?subject=Property Inquiry: {{ lead[1] }}" 
+                                       class="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 font-bold text-xs px-2.5 py-1 rounded-lg transition-all w-fit">
+                                        <i class="fa-solid fa-envelope text-xs"></i> {{ lead[4] }}
+                                    </a>
+                                    {% endif %}
+
+                                    {% if lead[5] and lead[5] != 'None' and lead[5] != '' %}
+                                    <a href="tel:{{ lead[5] }}" 
+                                        class="inline-flex items-center gap-1.5 bg-slate-850 border border-slate-700 hover:bg-slate-700 text-slate-300 font-mono text-xs px-2.5 py-1 rounded-lg transition-all w-fit">
+                                        <i class="fa-solid fa-phone text-slate-500 text-xs"></i> {{ lead[5] }}
+                                    </a>
+                                    {% endif %}
+
+                                    {% if (not lead[4] or not '@' in lead[4]) and (not lead[5] or lead[5] == 'None' or lead[5] == '') %}
+                                    <span class="text-xs text-slate-500 italic"><i class="fa-solid fa-envelope-slash"></i> No Verified Channels</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-5 text-right font-mono text-xs text-slate-500">
+                                {{ lead[7] }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-16 text-center text-slate-500 bg-slate-900/20">
+                                <div class="max-w-sm mx-auto flex flex-col items-center gap-3">
+                                    <i class="fa-solid fa-chart-area text-4xl text-slate-700"></i>
+                                    <p class="text-slate-400 font-semibold">Real estate cluster database is empty.</p>
+                                    <p class="text-xs text-slate-500">Execute your active data harvest orchestration scripts to parse properties.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

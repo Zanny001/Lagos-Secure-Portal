@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harvester Core — Unified Matrix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-indigo-500 selection:text-white">
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
+        
+        <header class="border-b border-slate-800 pb-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                    LAGOS HARVESTER — UNIFIED MATRIX
+                </h1>
+                <p class="text-sm text-slate-400 mt-1">Live corporate intelligence & premium real estate ingestion pipeline hub.</p>
+            </div>
+            <div class="flex flex-wrap gap-3 items-center w-full md:w-auto justify-between md:justify-end">
+                <a href="/dev-admin" class="text-xs bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 px-4 py-2.5 rounded-lg transition-all font-mono flex items-center gap-2">
+                    <i class="fa-solid fa-grip-vertical text-slate-500"></i> Master Control
+                </a>
+                <a href="/harvester/leads/download" class="text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-4 py-2.5 rounded-lg transition-all font-bold shadow-lg shadow-emerald-950/40 flex items-center gap-2">
+                    <i class="fa-solid fa-file-csv"></i> Export Datasets (CSV)
+                </a>
+                <div class="text-xs bg-indigo-950/40 border border-indigo-500/20 px-3 py-2.5 rounded-lg font-mono text-indigo-400">
+                    Active Targets: <strong class="text-white">{{ leads|length }}</strong>
+                </div>
+            </div>
+        </header>
+
+        <main class="bg-slate-900/60 backdrop-blur-md border border-slate-800 rounded-xl shadow-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300 border-collapse">
+                    <thead class="bg-slate-950/80 text-xs uppercase text-slate-400 font-bold tracking-wider border-b border-slate-800">
+                        <tr>
+                            <th class="px-6 py-4.5">Entity / Property Profile</th>
+                            <th class="px-6 py-4.5">Sector Segment</th>
+                            <th class="px-6 py-4.5">Communication Vectors</th>
+                            <th class="px-6 py-4.5">Detailed Analytics Payload</th>
+                            <th class="px-6 py-4.5 text-right">Ingestion Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60">
+                        {% for lead in leads %}
+                        <tr class="hover:bg-slate-800/40 transition-all duration-150">
+                            <td class="px-6 py-5 font-bold text-white text-base tracking-tight">{{ lead[0] }}</td>
+                            
+                            <td class="px-6 py-5">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-slate-950 border border-slate-800 text-slate-300">
+                                    <i class="fa-solid fa-map-pin text-indigo-400 text-[10px]"></i> {{ lead[1] }}
+                                </span>
+                            </td>
+                            
+                            <td class="px-6 py-5 font-mono text-xs">
+                                {% if lead[2] and '@' in lead[2] and 'fake' not in lead[2]|lower %}
+                                <a href="mailto:{{ lead[2] }}" class="inline-flex items-center gap-1.5 text-indigo-400 hover:text-indigo-300 font-bold bg-indigo-950/30 px-2.5 py-1 rounded-md border border-indigo-900/40 transition-all">
+                                    <i class="fa-solid fa-envelope"></i> {{ lead[2] }}
+                                </a>
+                                {% else %}
+                                <span class="text-slate-500 italic"><i class="fa-solid fa-envelope-slash"></i> No Email Routing</span>
+                                {% endif %}
+                            </td>
+                            
+                            <td class="px-6 py-5">
+                                {% if lead[3] and '0' in lead[3] or '+' in lead[3] %}
+                                <a href="tel:{{ lead[3] }}" class="inline-flex items-center gap-1 text-slate-300 font-mono text-xs hover:text-white bg-slate-800/50 px-2 py-1 rounded border border-slate-700/50">
+                                    <i class="fa-solid fa-phone text-slate-500 text-[11px]"></i> {{ lead[3] }}
+                                </a>
+                                {% else %}
+                                <span class="text-slate-400 font-medium text-xs">{{ lead[3] }}</span>
+                                {% endif %}
+                            </td>
+                            
+                            <td class="px-6 py-5 text-right font-mono text-xs text-slate-500">{{ lead[4] }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-16 text-center text-slate-500">
+                                <div class="max-w-md mx-auto flex flex-col items-center gap-3">
+                                    <i class="fa-solid fa-circle-nodes text-4xl text-indigo-500/30 animate-pulse"></i>
+                                    <p class="text-slate-400 font-semibold text-base">Unified matrix grid pipeline is idle.</p>
+                                    <p class="text-xs text-slate-500 leading-relaxed">No live streaming lead data discovered in data arrays. Confirm operational execution constraints on your `live_ingestion.py` services.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

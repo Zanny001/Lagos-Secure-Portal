@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zannie — Production Matrix</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
+        
+        <header class="border-b border-fuchsia-500/30 pb-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-fuchsia-400 to-pink-500 bg-clip-text text-transparent">
+                    Zannie Apparel — Order Intake Hub
+                </h1>
+                <p class="text-sm text-slate-400 mt-1">Bespoke fashion order matrices, fabric tracking, and transaction status clearing.</p>
+            </div>
+            <div class="flex gap-4 items-center">
+                <a href="/dev-admin" class="text-sm bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 px-4 py-2 rounded-md transition-colors font-mono">← Master Control</a>
+                <div class="text-xs bg-fuchsia-950/50 border border-fuchsia-500/30 px-3 py-2 rounded-md font-mono text-fuchsia-300">
+                    Active Orders: {{ orders|length }}
+                </div>
+            </div>
+        </header>
+
+        <main class="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-300">
+                    <thead class="bg-slate-950/60 text-xs uppercase text-slate-400 font-semibold border-b border-slate-800">
+                        <tr>
+                            <th class="px-6 py-4">Order ID</th>
+                            <th class="px-6 py-4">Client Contact</th>
+                            <th class="px-6 py-4">Garment Description</th>
+                            <th class="px-6 py-4">Material Configuration</th>
+                            <th class="px-6 py-4">Valuation (NGN)</th>
+                            <th class="px-6 py-4 text-right">Production Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60">
+                        {% for order in orders %}
+                        <tr class="hover:bg-slate-900/40 transition-colors">
+                            <td class="px-6 py-4 font-mono font-bold text-fuchsia-400 text-xs">{{ order[0] }}</td>
+                            <td class="px-6 py-4">
+                                <div class="font-medium text-white">{{ order[1] }}</div>
+                                <div class="text-xs text-slate-500 mt-0.5">{{ order[2] }}</div>
+                            </td>
+                            <td class="px-6 py-4 text-slate-300 font-medium">{{ order[3] }}</td>
+                            <td class="px-6 py-4"><span class="px-2.5 py-1 rounded bg-slate-950 border border-slate-800 text-xs text-slate-400">{{ order[6] }}</span></td>
+                            <td class="px-6 py-4 font-mono font-medium text-slate-200">₦{{ "{:,.2f}".format(order[4]) }}</td>
+                            <td class="px-6 py-4 text-right">
+                                {% if order[5] == 'Pending' %}
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/10 border border-amber-500/30 text-amber-400">Unpaid / Pending</span>
+                                {% elif order[5] == 'Processing' %}
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">Processing Production</span>
+                                {% else %}
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-slate-800 border border-slate-700 text-slate-400">{{ order[5] }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="px-6 py-12 text-center text-slate-500 font-mono">
+                                No custom apparel entries indexed. Launch sales operations to stream payloads.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

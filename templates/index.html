@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zannie Master Control Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased flex items-center justify-center p-4 md:p-8">
+    <div class="max-w-5xl w-full">
+        <header class="text-center mb-12">
+            <h1 class="text-3xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-amber-400 bg-clip-text text-transparent uppercase">
+                Zannie Control Center
+            </h1>
+            <p class="text-sm md:text-base text-slate-400 mt-2 font-medium tracking-wide">Unified System Administration Portal Node</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Real Estate Node -->
+            <a href="/harvester/properties" class="group bg-slate-900/40 backdrop-blur-md border border-slate-800 hover:border-emerald-500/50 p-6 rounded-xl transition-all duration-300 flex flex-col justify-between shadow-xl hover:shadow-emerald-950/20 hover:-translate-y-1">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-slate-950 transition-all duration-300">
+                            <i class="fa-solid fa-city text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-mono tracking-widest text-slate-500 uppercase font-bold">Node 01</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors">Real Estate Engine</h3>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">Automated premium property harvesting matrix tracking valuations, sector classifications, and live asset pipelines across Lagos.</p>
+                </div>
+                <div class="text-[11px] font-bold tracking-wider text-slate-500 group-hover:text-emerald-400 uppercase font-mono mt-6 flex items-center gap-1.5 transition-colors">
+                    Launch Pipeline <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </a>
+
+            <!-- Corporate Node -->
+            <a href="/harvester/corporate" class="group bg-slate-900/40 backdrop-blur-md border border-slate-800 hover:border-cyan-500/50 p-6 rounded-xl transition-all duration-300 flex flex-col justify-between shadow-xl hover:shadow-cyan-950/20 hover:-translate-y-1">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 group-hover:bg-cyan-500 group-hover:text-slate-950 transition-all duration-300">
+                            <i class="fa-solid fa-building-shield text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-mono tracking-widest text-slate-500 uppercase font-bold">Node 02</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors">Corporate Intel Hub</h3>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">Live business data acquisition matrix harvesting verified corporate entities, sector distributions, and targeted communication vectors.</p>
+                </div>
+                <div class="text-[11px] font-bold tracking-wider text-slate-500 group-hover:text-cyan-400 uppercase font-mono mt-6 flex items-center gap-1.5 transition-colors">
+                    Launch Matrix <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </a>
+
+            <!-- Brand Node -->
+            <a href="/zannie" class="group bg-slate-900/40 backdrop-blur-md border border-slate-800 hover:border-amber-500/50 p-6 rounded-xl transition-all duration-300 flex flex-col justify-between shadow-xl hover:shadow-amber-950/20 hover:-translate-y-1">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all duration-300">
+                            <i class="fa-solid fa-gem text-lg"></i>
+                        </div>
+                        <span class="text-[10px] font-mono tracking-widest text-slate-500 uppercase font-bold">Node 03</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white group-hover:text-amber-400 transition-colors">Zannie Brand Node</h3>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">Luxury checkout portal managing custom order specifications, tailored fabric matrices, and multi-currency transaction operations.</p>
+                </div>
+                <div class="text-[11px] font-bold tracking-wider text-slate-500 group-hover:text-amber-400 uppercase font-mono mt-6 flex items-center gap-1.5 transition-colors">
+                    Access Brand <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

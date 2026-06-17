@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .prose h1 { @apply text-3xl font-bold text-indigo-400 mb-4; }
+        .prose h2 { @apply text-2xl font-semibold text-emerald-400 mt-6 mb-3; }
+        .prose h3 { @apply text-xl font-medium text-cyan-400 mt-4 mb-2; }
+        .prose p { @apply text-slate-300 mb-4 leading-relaxed; }
+        .prose ul { @apply list-disc list-inside text-slate-300 mb-4 pl-4; }
+        .prose strong { @apply text-white font-semibold; }
+        .prose table { @apply w-full text-left border-collapse mb-6; }
+        .prose th { @apply bg-slate-800 p-2 border border-slate-700 text-indigo-300; }
+        .prose td { @apply p-2 border border-slate-700 text-slate-300; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-4 md:p-8">
+    <div class="max-w-4xl mx-auto">
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <nav class="text-sm text-slate-400 flex items-center gap-2">
+                <a href="/syllabus" class="hover:text-white transition">Syllabus</a>
+                <span>/</span>
+                <span class="uppercase text-slate-300">{{ subject }}</span>
+                <span>/</span>
+                <span class="uppercase text-slate-300">{{ level.replace('_', ' ') }}</span>
+            </nav>
+            
+            <a href="/syllabus/download/{{ subject }}/{{ level }}/{{ filename }}" 
+               class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg transition-colors">
+                <span>📥</span> Download Printable Worksheet (PDF)
+            </a>
+        </header>
+        
+        <div class="bg-slate-800 p-6 md:p-8 rounded-xl shadow-2xl border border-slate-700">
+            <div class="prose max-w-none">
+                {{ content | safe }}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
