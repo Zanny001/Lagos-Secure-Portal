@@ -70,21 +70,21 @@ def zannie_create_order():
     fabric_matrix = data.get('fabric_matrix', 'Standard Blend')
     embroidery_profile = data.get('embroidery_profile', 'Standard Stitch')
     measurements = data.get('measurements_json', '{}')
-
+    
     if not all([customer_name, customer_email, garment_name, base_price_ngn]):
         return jsonify({"status": "error", "message": "Missing required transactional fields"}), 400
-
+        
     order_id = f"ZAN-{uuid.uuid4().hex[:8].upper()}"
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO custom_orders (order_id, customer_name, customer_email, customer_phone, garment_name, base_price_ngn) 
+            INSERT INTO custom_orders (order_id, customer_name, customer_email, customer_phone, garment_name, base_price_ngn)
             VALUES (?, ?, ?, ?, ?, ?);
         """, (order_id, customer_name, customer_email, customer_phone, garment_name, base_price_ngn))
         
         cursor.execute("""
-            INSERT INTO order_specifications (order_id, fabric_matrix, embroidery_profile, measurements_json) 
+            INSERT INTO order_specifications (order_id, fabric_matrix, embroidery_profile, measurements_json)
             VALUES (?, ?, ?, ?);
         """, (order_id, fabric_matrix, embroidery_profile, str(measurements)))
         
@@ -106,11 +106,11 @@ def zannie_payment_webhook():
     gateway = payload.get('gateway', 'Paystack')
     currency = payload.get('currency') or payload.get('data', {}).get('currency', 'NGN')
     amount = payload.get('amount') or payload.get('data', {}).get('amount')
-
+    
     # Convert gateway subunits (kobo/cents) if applicable from raw webhooks
     if amount and isinstance(amount, int) and amount > 50000:
         amount = amount / 100
-
+        
     if order_id and reference:
         transaction_id = f"TXN-{uuid.uuid4().hex[:10].upper()}"
         try:
@@ -123,12 +123,11 @@ def zannie_payment_webhook():
             garment_name = order_row[1] if order_row else "Bespoke Apparel"
             
             cursor.execute("""
-                INSERT INTO transaction_logs (transaction_id, order_id, gateway, currency_code, amount_paid, gateway_reference, payment_status) 
+                INSERT INTO transaction_logs (transaction_id, order_id, gateway, currency_code, amount_paid, gateway_reference, payment_status)
                 VALUES (?, ?, ?, ?, ?, ?, 'Successful');
             """, (transaction_id, order_id, gateway, currency, amount, reference))
             
             cursor.execute("UPDATE custom_orders SET order_status = 'Processing' WHERE order_id = ?;", (order_id,))
-            
             conn.commit()
             conn.close()
             

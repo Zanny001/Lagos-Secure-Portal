@@ -15,25 +15,21 @@
             --border-gold: #2e2511;
             --accent-green: #4ade80;
         }
-
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             font-family: 'Didot', 'Bodoni MT', 'Cinzel', Georgia, serif;
         }
-
         body {
             background-color: var(--bg-luxury);
             color: var(--text-light);
             padding: 30px 20px;
         }
-
         .brand-container {
             max-width: 1100px;
             margin: 0 auto;
         }
-
         .back-hub {
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             color: var(--text-muted);
@@ -45,32 +41,27 @@
             margin-bottom: 25px;
             transition: color 0.2s;
         }
-
         .back-hub:hover {
             color: var(--accent-gold);
         }
-
         header {
             text-align: center;
             border-bottom: 1px solid var(--border-gold);
             padding-bottom: 30px;
             margin-bottom: 40px;
         }
-
         header h1 {
             font-size: 2.8rem;
             color: var(--accent-gold);
             letter-spacing: 4px;
             margin-bottom: 8px;
         }
-
         header p {
             font-size: 1.1rem;
             color: var(--text-muted);
             font-style: italic;
             letter-spacing: 2px;
         }
-
         /* Currency Filter Controls Layout */
         .currency-selector-bar {
             display: flex;
@@ -80,14 +71,12 @@
             margin-bottom: 30px;
             font-family: -apple-system, sans-serif;
         }
-
         .currency-label {
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-muted);
         }
-
         .currency-select {
             background-color: var(--panel-bg);
             color: var(--text-light);
@@ -98,7 +87,6 @@
             font-size: 0.9rem;
             cursor: pointer;
         }
-
         .rate-status {
             font-size: 0.8rem;
             color: var(--text-muted);
@@ -108,14 +96,12 @@
             text-align: right;
             font-family: -apple-system, sans-serif;
         }
-
         /* Product Showcase Grid */
         .collection-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 30px;
         }
-
         .product-card {
             background-color: var(--panel-bg);
             border: 1px solid rgba(212, 175, 55, 0.1);
@@ -123,12 +109,10 @@
             overflow: hidden;
             transition: transform 0.3s, border-color 0.3s;
         }
-
         .product-card:hover {
             transform: translateY(-4px);
             border-color: var(--accent-gold);
         }
-
         .product-image-mock {
             height: 260px;
             background: linear-gradient(135deg, #111827, #1e293b);
@@ -141,7 +125,6 @@
             border-bottom: 1px solid var(--border-gold);
             position: relative;
         }
-
         .product-image-mock::before {
             content: '✨';
             position: absolute;
@@ -149,18 +132,15 @@
             right: 15px;
             font-size: 1.2rem;
         }
-
         .product-info {
             padding: 25px;
         }
-
         .product-title {
             font-size: 1.4rem;
             color: var(--text-light);
             margin-bottom: 8px;
             letter-spacing: 1px;
         }
-
         .product-desc {
             font-family: -apple-system, sans-serif;
             font-size: 0.9rem;
@@ -168,7 +148,6 @@
             line-height: 1.6;
             margin-bottom: 20px;
         }
-
         .specs-table {
             width: 100%;
             border-collapse: collapse;
@@ -176,15 +155,12 @@
             font-family: -apple-system, sans-serif;
             font-size: 0.8rem;
         }
-
         .specs-table td {
             padding: 6px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
-
         .specs-label { color: var(--text-muted); }
         .specs-val { text-align: right; color: var(--accent-gold); font-weight: 500; }
-
         .price-display {
             font-size: 1.6rem;
             font-weight: bold;
@@ -194,15 +170,13 @@
     </style>
 </head>
 <body>
-
     <div class="brand-container">
         <a href="index.html" class="back-hub">← Control Center Hub</a>
-        
         <header>
             <h1>ZANNIE DESIGNS</h1>
             <p>Bespoke Tailoring & Luxury Custom Jalabias</p>
         </header>
-
+        
         <div class="currency-selector-bar">
             <span class="currency-label">Select Currency:</span>
             <select id="currencySelect" class="currency-select" onchange="convertStorefrontPrices()">
@@ -213,15 +187,13 @@
             </select>
         </div>
         <div id="rateStatus" class="rate-status">Exchange network layer initializing...</div>
-
+        
         <main class="collection-grid">
-            <!-- Product 1 -->
             <div class="product-card">
                 <div class="product-image-mock">ROYAL BESPOKE JALABIA</div>
                 <div class="product-info">
                     <h3 class="product-title">The Monarch Collection</h3>
                     <p class="product-desc">Exquisite premium custom-tailored jalabia featuring high-grade ceremonial thread embroidery along the neckline and cuffs.</p>
-                    
                     <table class="specs-table">
                         <tr>
                             <td class="specs-label">Premium Material Blend</td>
@@ -235,14 +207,12 @@
                     <div class="price-display" data-base-price="185000">₦185,000</div>
                 </div>
             </div>
-
-            <!-- Product 2 -->
+            
             <div class="product-card">
                 <div class="product-image-mock">MINIMALIST WHITE LINEN</div>
                 <div class="product-info">
                     <h3 class="product-title">The Meridian Jalabia</h3>
                     <p class="product-desc">A breathable, ultra-clean aesthetic cut engineered perfectly for high-end casual gatherings and premium daytime utility.</p>
-                    
                     <table class="specs-table">
                         <tr>
                             <td class="specs-label">Premium Material Blend</td>
@@ -258,13 +228,12 @@
             </div>
         </main>
     </div>
-
+    
     <script>
         // High-Fidelity Static Fallback Values (Used instantly if user is completely offline)
         let exchangeRates = { NGN: 1.0, USD: 0.00067, GBP: 0.00052, EUR: 0.00062 };
-        
         const currencySymbols = { NGN: "₦", USD: "$", GBP: "£", EUR: "€" };
-
+        
         async function initializeExchangeEngine() {
             const statusLabel = document.getElementById("rateStatus");
             try {
@@ -273,7 +242,6 @@
                 if (!response.ok) throw new Error("API stream connection error");
                 
                 const data = await response.json();
-                
                 // Safely extract active conversions
                 exchangeRates.USD = data.rates.USD || exchangeRates.USD;
                 exchangeRates.GBP = data.rates.GBP || exchangeRates.GBP;
@@ -288,12 +256,11 @@
                 console.log("[-] Rate stream unreachable. Utilizing local caching system.");
             }
         }
-
+        
         function convertStorefrontPrices() {
             const selectedCurrency = document.getElementById("currencySelect").value;
             const rate = exchangeRates[selectedCurrency];
             const symbol = currencySymbols[selectedCurrency];
-            
             const priceTags = document.querySelectorAll(".price-display");
             
             priceTags.forEach(tag => {
@@ -308,7 +275,7 @@
                 }
             });
         }
-
+        
         // Initialize rates instantly on screen initialization
         window.onload = async () => {
             await initializeExchangeEngine();
@@ -317,4 +284,3 @@
     </script>
 </body>
 </html>
-

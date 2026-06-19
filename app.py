@@ -8,7 +8,8 @@ from modules.academic import academic_bp
 from modules.zannie import zannie_bp
 from modules.harvester import harvester_bp
 from modules.scholarships import scholarships_bp
-from modules.admin import admin_bp
+from modules.admin import admin_bp                           
+from modules.studio import studio_bp # <-- UPGRADE: Added Studio Blueprint
 
 app = Flask(__name__)
 
@@ -36,7 +37,7 @@ def execute_init_query(db_target, sqlite_query, postgres_query):
             conn.commit()
             conn.close()
     except Exception as e:
-        print(f"[-] Database initialization warning for target {db_target}: {str(e)}")
+        print(f"[-] Database initialization warning for target {db_target}: {str(e)}")                                    
 
 # ===================================================================
 # DATABASE INITIALIZATION ROUTINES
@@ -70,8 +71,8 @@ def init_all_databases():
         ZANNIE_DB,
         "CREATE TABLE IF NOT EXISTS transaction_logs (transaction_id TEXT PRIMARY KEY, order_id TEXT NOT NULL, gateway TEXT NOT NULL CHECK(gateway IN ('Paystack', 'Flutterwave')), currency_code TEXT NOT NULL CHECK(currency_code IN ('NGN', 'USD', 'GBP', 'EUR')), amount_paid REAL NOT NULL, gateway_reference TEXT UNIQUE, payment_status TEXT NOT NULL CHECK(payment_status IN ('Initiated', 'Successful', 'Failed', 'Reversed')), updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (order_id) REFERENCES custom_orders(order_id));",
         "CREATE TABLE IF NOT EXISTS transaction_logs (transaction_id TEXT PRIMARY KEY, order_id TEXT NOT NULL, gateway TEXT NOT NULL CHECK(gateway IN ('Paystack', 'Flutterwave')), currency_code TEXT NOT NULL CHECK(currency_code IN ('NGN', 'USD', 'GBP', 'EUR')), amount_paid REAL NOT NULL, gateway_reference TEXT UNIQUE, payment_status TEXT NOT NULL CHECK(payment_status IN ('Initiated', 'Successful', 'Failed', 'Reversed')), updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (order_id) REFERENCES custom_orders(order_id));"
-    )
-
+    )                                                        
+    
     # Global Academic Funding Tables
     execute_init_query(
         DATABASE_URL if os.environ.get("DATABASE_URL") else ACADEMIC_DB,
@@ -85,7 +86,7 @@ def init_all_databases():
         "CREATE TABLE IF NOT EXISTS leads (id INTEGER PRIMARY KEY AUTOINCREMENT, business_name TEXT NOT NULL, category TEXT, email TEXT, phone TEXT, harvested_at TEXT);",
         "CREATE TABLE IF NOT EXISTS leads (id SERIAL PRIMARY KEY, business_name TEXT NOT NULL, category TEXT, email TEXT, phone TEXT, harvested_at TIMESTAMPTZ);"
     )
-    
+
     print("[+] Unified operational database clusters synchronized successfully.")
 
 init_all_databases()
@@ -94,10 +95,11 @@ init_all_databases()
 # BLUEPRINT REGISTRATION (CLEAN STRUCTURAL URL MAPPING)
 # ===================================================================
 app.register_blueprint(admin_bp) # Serves /dev-admin directly
-app.register_blueprint(academic_bp, url_prefix='/academic')
+app.register_blueprint(academic_bp, url_prefix='/academic')  
 app.register_blueprint(zannie_bp, url_prefix='/zannie')
 app.register_blueprint(harvester_bp, url_prefix='/harvester')
 app.register_blueprint(scholarships_bp, url_prefix='/scholarships')
+app.register_blueprint(studio_bp, url_prefix='/zannie') # <-- UPGRADE: AI Studio Registered
 
 # ===================================================================
 # PRIMARY ROOT ROUTE: EXTENDED CURRICULUM VIEW
@@ -177,7 +179,8 @@ def global_system_health():
             "Academic Analytics Engine v2",
             "Zannie Multi-Currency Checkout",
             "Harvester Intelligence",
-            "Global Scholarships Matrix"
+            "Global Scholarships Matrix",
+            "Zannie AI Design Studio" # <-- UPGRADE: Added to health check
         ]
     }), 200
 

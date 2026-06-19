@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programmer Master Control Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-indigo-500 selection:text-white">
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
+        <header class="border-b border-slate-800 pb-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-mono font-bold tracking-tight text-indigo-400">
+                    root@lagos-secure-portal:~#
+                </h1>
+                <p class="text-sm text-slate-400 mt-1">Global System Architecture Link & Deployment Controller.</p>
+            </div>
+            <div class="flex gap-3">
+                <span class="px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-mono text-xs rounded-lg flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span> SECURE SESSION ACTIVE
+                </span>
+            </div>
+        </header>
+
+        <section class="mb-10">
+            <h2 class="text-sm uppercase tracking-widest font-bold mb-4 text-slate-500 font-mono"><i class="fa-solid fa-terminal mr-2"></i>DevOps Control Plane</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button onclick="triggerAction('ignite_scraper')" class="bg-slate-900 border border-slate-800 hover:border-emerald-500 hover:text-emerald-400 text-slate-300 text-xs font-mono py-3 rounded-lg transition-all flex flex-col items-center justify-center gap-2">
+                    <i class="fa-solid fa-play text-lg"></i> Ignite Scraper
+                </button>
+                <button onclick="triggerAction('force_export')" class="bg-slate-900 border border-slate-800 hover:border-cyan-500 hover:text-cyan-400 text-slate-300 text-xs font-mono py-3 rounded-lg transition-all flex flex-col items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-csv text-lg"></i> Force Export CSV
+                </button>
+                <button onclick="triggerAction('pull_git')" class="bg-slate-900 border border-slate-800 hover:border-indigo-500 hover:text-indigo-400 text-slate-300 text-xs font-mono py-3 rounded-lg transition-all flex flex-col items-center justify-center gap-2">
+                    <i class="fa-brands fa-github text-lg"></i> Pull Latest Git
+                </button>
+                <button onclick="triggerAction('restart_server')" class="bg-slate-900 border border-slate-800 hover:border-rose-500 hover:text-rose-400 text-slate-300 text-xs font-mono py-3 rounded-lg transition-all flex flex-col items-center justify-center gap-2">
+                    <i class="fa-solid fa-rotate-right text-lg"></i> Restart Server
+                </button>
+            </div>
+        </section>
+
+        <section class="mb-10">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-sm uppercase tracking-widest font-bold text-slate-500 font-mono">
+                    <i class="fa-solid fa-rectangle-list mr-2"></i>Live Operational Stream
+                </h2>
+                <span id="stream-badge" class="px-2 py-0.5 text-[10px] font-mono rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase">
+                    Connecting Stream...
+                </span>
+            </div>
+            <div class="w-full bg-black rounded-xl border border-slate-800 overflow-hidden shadow-2xl flex flex-col h-[320px]">
+                <div class="bg-slate-900 px-4 py-2 flex items-center justify-between border-b border-slate-800 select-none">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-rose-500/70 block"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-500/70 block"></span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-500/70 block"></span>
+                        <span class="text-xs font-mono text-slate-400 ml-2">daemon_runtime.log</span>
+                    </div>
+                    <button onclick="clearConsole()" class="text-[10px] uppercase font-mono px-2 py-0.5 rounded border border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+                        Clear Node
+                    </button>
+                </div>
+                <div id="terminal-screen" class="p-4 overflow-y-auto flex-1 font-mono text-xs leading-relaxed text-emerald-400 space-y-1 bg-neutral-950 whitespace-pre-wrap selection:bg-emerald-500 selection:text-black">
+                    <div class="text-slate-500 select-none">[SYSTEM INFRASTRUCTURE ONLINE] Handshaking stream engine...</div>
+                </div>
+            </div>
+        </section>
+
+        <h2 class="text-sm uppercase tracking-widest font-bold mb-4 text-slate-500 font-mono"><i class="fa-solid fa-server mr-2"></i>Isolated Module Infrastructure</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-slate-700 transition-all flex flex-col justify-between shadow-lg">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-satellite-dish text-cyan-400 mr-2"></i>Lagos Harvester</h3>
+                        <span class="px-2 py-0.5 text-[10px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
+                            {{ stats.harvester_status }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-400 mb-4">Handles automated background scrapers, target parsing pipelines, and local business telemetry storage.</p>
+                    <div class="text-xs font-mono text-slate-500 space-y-2 mb-6 bg-slate-950 p-3 rounded border border-slate-800">
+                        <div class="flex justify-between"><span>Database Target:</span> <span class="text-slate-300">leads.db</span></div>
+                        <div class="flex justify-between"><span>Indexed Leads:</span> <span class="text-cyan-400 font-bold">{{ stats.total_leads }}</span></div>
+                    </div>
+                </div>
+                <a href="/harvester/leads" class="block text-center w-full bg-slate-800 hover:bg-slate-700 text-sm font-semibold py-2.5 rounded-lg border border-slate-700 transition-colors text-slate-200">
+                    Access Harvester UI &rarr;
+                </a>
+            </div>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-slate-700 transition-all flex flex-col justify-between shadow-lg">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-graduation-cap text-amber-400 mr-2"></i>Academic Portal</h3>
+                        <span class="px-2 py-0.5 text-[10px] font-mono rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase">
+                            {{ stats.academic_status }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-400 mb-4">Dynamic curriculum indexing and metrics manager for student profiles including Kehinde, Tooki, and Odutana.</p>
+                    <div class="text-xs font-mono text-slate-500 space-y-2 mb-6 bg-slate-950 p-3 rounded border border-slate-800">
+                        <div class="flex justify-between"><span>Database Target:</span> <span class="text-slate-300">academic.db</span></div>
+                        <div class="flex justify-between"><span>Active Webhook:</span> <span class="text-amber-400 font-bold">Discord Stream</span></div>
+                    </div>
+                </div>
+                <a href="/academic/" class="block text-center w-full bg-slate-800 hover:bg-slate-700 text-sm font-semibold py-2.5 rounded-lg border border-slate-700 transition-colors text-slate-200">
+                    Access Academic UI &rarr;
+                </a>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-slate-700 transition-all flex flex-col justify-between shadow-lg">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-shirt text-fuchsia-400 mr-2"></i>Zannie Architecture</h3>
+                        <span class="px-2 py-0.5 text-[10px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
+                            {{ stats.zannie_status }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-400 mb-4">E-commerce checkout pipelines, multi-currency verification algorithms, and custom garment ordering engine.</p>
+                    <div class="text-xs font-mono text-slate-500 space-y-2 mb-6 bg-slate-950 p-3 rounded border border-slate-800">
+                        <div class="flex justify-between"><span>Database Target:</span> <span class="text-slate-300">zannie.db</span></div>
+                        <div class="flex justify-between"><span>Indexed Orders:</span> <span class="text-fuchsia-400 font-bold">{{ stats.total_orders }}</span></div>
+                    </div>
+                </div>
+                <a href="/zannie/dashboard" class="block text-center w-full bg-slate-800 hover:bg-slate-700 text-sm font-semibold py-2.5 rounded-lg border border-slate-700 transition-colors text-slate-200">
+                    Access Zannie UI &rarr;
+                </a>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 hover:border-slate-700 transition-all flex flex-col justify-between shadow-lg">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-globe text-blue-400 mr-2"></i>Scholarships Engine</h3>
+                        <span class="px-2 py-0.5 text-[10px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">
+                            {{ stats.scholarships_status }}
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-400 mb-4">Aggregator and scraper system tracking global academic funding opportunities and deadlines.</p>
+                    <div class="text-xs font-mono text-slate-500 space-y-2 mb-6 bg-slate-950 p-3 rounded border border-slate-800">
+                        <div class="flex justify-between"><span>Database Target:</span> <span class="text-slate-300">scholarships.db</span></div>
+                        <div class="flex justify-between"><span>Indexed Opps:</span> <span class="text-blue-400 font-bold">{{ stats.total_scholarships }}</span></div>
+                    </div>
+                </div>
+                <a href="/scholarships/" class="block text-center w-full bg-slate-800 hover:bg-slate-700 text-sm font-semibold py-2.5 rounded-lg border border-slate-700 transition-colors text-slate-200">
+                    Access Scholarships UI &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const terminalScreen = document.getElementById('terminal-screen');
+        const streamBadge = document.getElementById('stream-badge');
+
+        // Execute Control Plane Actions via POST
+        async function triggerAction(actionName) {
+            try {
+                appendTerminalLine(`[TRIGGER] Initializing execution call: "${actionName}"...`, "text-indigo-400");
+                const response = await fetch(`/dev-admin/action/${actionName}`, { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    appendTerminalLine(`[OK] ${data.message}`, "text-emerald-400");
+                } else {
+                    appendTerminalLine(`[FAIL] ${data.message}`, "text-rose-400 animate-pulse");
+                }
+            } catch (error) {
+                appendTerminalLine(`[FAULT] Infrastructure failed to process API token handshake.`, "text-rose-500");
+            }
+        }
+
+        // Initialize Live Persistent Event Stream (SSE)
+        function initLogStream() {
+            const eventSource = new EventSource('/dev-admin/stream-logs');
+
+            eventSource.onopen = () => {
+                streamBadge.className = "px-2 py-0.5 text-[10px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase";
+                streamBadge.innerText = "STREAM LIVE";
+                appendTerminalLine("[CONNECT] Data link channel connected successfully.", "text-slate-500");
+            };
+
+            eventSource.onmessage = function(event) {
+                if (event.data.trim()) {
+                    appendTerminalLine(event.data, "text-emerald-400");
+                }
+            };
+
+            eventSource.onerror = () => {
+                streamBadge.className = "px-2 py-0.5 text-[10px] font-mono rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase";
+                streamBadge.innerText = "LINK FAULT";
+                // SSE automatically retries connection drops natively
+            };
+        }
+
+        function appendTerminalLine(text, tailwindColorClass) {
+            const line = document.createElement('div');
+            line.className = tailwindColorClass;
+            line.innerText = text;
+            terminalScreen.appendChild(line);
+            
+            // Auto-scroll anchor lock down to latest execution output block
+            terminalScreen.scrollTop = terminalScreen.scrollHeight;
+        }
+
+        function clearConsole() {
+            terminalScreen.innerHTML = '<div class="text-slate-500 select-none">[CONSOLE FLUSHED] Awaiting incoming events...</div>';
+        }
+
+        // Mount Stream automatically when browser page lands
+        window.onload = initLogStream;
+    </script>
+</body>
+</html>

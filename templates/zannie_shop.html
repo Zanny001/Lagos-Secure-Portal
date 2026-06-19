@@ -37,121 +37,118 @@
     </style>
 </head>
 <body>
-
-<div class="checkout-container">
-    <a href="index.html" class="nav-back">← Back to Hub</a>
+    <div class="checkout-container">
+        <a href="index.html" class="nav-back">← Back to Hub</a>
+        <div class="header">
+            <h1>Zannie Luxury</h1>
+            <p>International Checkout Portal</p>
+        </div>
+        
+        <div class="product-card">
+            <div class="product-title">Premium Custom Jalabia</div>
+            <div class="product-desc">High-end bespoke tailoring tailored for international shipping.</div>
+            <div class="price-display" id="priceTag">Loading Price...</div>
+        </div>
+        
+        <div class="form-group">
+            <label for="currencySelect">Select Your Local Currency</label>
+            <select id="currencySelect" onchange="handleCurrencyChange()">
+                <option value="NGN">NGN - Nigerian Naira (₦)</option>
+                <option value="USD">USD - US Dollar ($)</option>
+                <option value="GBP">GBP - British Pound (£)</option>
+                <option value="EUR">EUR - Euro (€)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="customerEmail">Email Address</label>
+            <input type="email" id="customerEmail" placeholder="customer@example.com" value="guest@zanniefashion.com">
+        </div>
+        
+        <button class="btn-checkout" onclick="processCheckout()">Initialize Secure Payment</button>
+        <div id="statusReport" class="status-box"></div>
+    </div>
     
-    <div class="header">
-        <h1>Zannie Luxury</h1>
-        <p>International Checkout Portal</p>
-    </div>
-
-    <div class="product-card">
-        <div class="product-title">Premium Custom Jalabia</div>
-        <div class="product-desc">High-end bespoke tailoring tailored for international shipping.</div>
-        <div class="price-display" id="priceTag">Loading Price...</div>
-    </div>
-
-    <div class="form-group">
-        <label for="currencySelect">Select Your Local Currency</label>
-        <select id="currencySelect" onchange="handleCurrencyChange()">
-            <option value="NGN">NGN - Nigerian Naira (₦)</option>
-            <option value="USD">USD - US Dollar ($)</option>
-            <option value="GBP">GBP - British Pound (£)</option>
-            <option value="EUR">EUR - Euro (€)</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="customerEmail">Email Address</label>
-        <input type="email" id="customerEmail" placeholder="customer@example.com" value="guest@zanniefashion.com">
-    </div>
-
-    <button class="btn-checkout" onclick="processCheckout()">Initialize Secure Payment</button>
-
-    <div id="statusReport" class="status-box"></div>
-</div>
-
-<script>
-    // Configuration pointing directly to the unified workspace architecture endpoint root
-    const API_BASE_URL = window.location.origin;
-    const BASE_PRODUCT_PRICE_NGN = 85000.00; // Base value for the premium jalabia line
-
-    // Dynamic price recalculation module hitting the live exchange rate engine
-    async function handleCurrencyChange() {
-        const targetCurrency = document.getElementById('currencySelect').value;
-        const priceTag = document.getElementById('priceTag');
+    <script>
+        // Configuration pointing directly to the unified workspace architecture endpoint root
+        const API_BASE_URL = window.location.origin;
+        const BASE_PRODUCT_PRICE_NGN = 85000.00; // Base value for the premium jalabia line
         
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/zannie/product-price`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    base_price_ngn: BASE_PRODUCT_PRICE_NGN,
-                    target_currency: targetCurrency
-                })
-            });
+        // Dynamic price recalculation module hitting the live exchange rate engine
+        async function handleCurrencyChange() {
+            const targetCurrency = document.getElementById('currencySelect').value;
+            const priceTag = document.getElementById('priceTag');
             
-            const data = await response.json();
-            if (data.status === 'success') {
-                const formatter = new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: data.target_currency
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/zannie/product-price`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        base_price_ngn: BASE_PRODUCT_PRICE_NGN,
+                        target_currency: targetCurrency
+                    })
                 });
-                priceTag.innerText = formatter.format(data.converted_amount);
-            } else {
-                priceTag.innerText = `₦${BASE_PRODUCT_PRICE_NGN.toLocaleString()}`;
+                
+                const data = await response.json();
+                if (data.status === 'success') {
+                    const formatter = new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: data.target_currency
+                    });
+                    priceTag.innerText = formatter.format(data.converted_amount);
+                } else {
+                    priceTag.innerText = `₦${BASE_PRODUCT_PRICE_NGN.toLocaleString()}`;
+                }
+            } catch (error) {
+                console.error('[-] Pricing localization link failed:', error);
+                priceTag.innerText = `₦${BASE_PRODUCT_PRICE_NGN.toLocaleString()} (Offline)`;
             }
-        } catch (error) {
-            console.error('[-] Pricing localization link failed:', error);
-            priceTag.innerText = `₦${BASE_PRODUCT_PRICE_NGN.toLocaleString()} (Offline)`;
         }
-    }
-
-    // Secure multi-currency checkout payment processor
-    async function processCheckout() {
-        const email = document.getElementById('customerEmail').value;
-        const currency = document.getElementById('currencySelect').value;
-        const statusReport = document.getElementById('statusReport');
         
-        if (!email) {
-            showStatus('Please input a valid email address to complete verification items.', 'error');
-            return;
-        }
-
-        showStatus('Contacting secure gateway processing blocks...', 'success');
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/zannie/checkout`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: email,
-                    amount_ngn: BASE_PRODUCT_PRICE_NGN,
-                    currency: currency
-                })
-            });
-
-            const data = await response.json();
-            if (data.status === 'success') {
-                showStatus(`<strong>Success!</strong> Gateway link ready.<br>Redirecting to secure processing node:<br><code style="font-size:11px;">${data.payment_url_mock}</code>`, 'success');
-            } else {
-                showStatus(`Checkout Error: ${data.message}`, 'error');
+        // Secure multi-currency checkout payment processor
+        async function processCheckout() {
+            const email = document.getElementById('customerEmail').value;
+            const currency = document.getElementById('currencySelect').value;
+            const statusReport = document.getElementById('statusReport');
+            
+            if (!email) {
+                showStatus('Please input a valid email address to complete verification items.', 'error');
+                return;
             }
-        } catch (error) {
-            showStatus('Network handshake error connecting to underlying payment gateways.', 'error');
+            
+            showStatus('Contacting secure gateway processing blocks...', 'success');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/zannie/checkout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        amount_ngn: BASE_PRODUCT_PRICE_NGN,
+                        currency: currency
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.status === 'success') {
+                    showStatus(`<strong>Success!</strong> Gateway link ready.<br>Redirecting to secure processing node:<br><code style="font-size:11px;">${data.payment_url_mock}</code>`, 'success');
+                } else {
+                    showStatus(`Checkout Error: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showStatus('Network handshake error connecting to underlying payment gateways.', 'error');
+            }
         }
-    }
-
-    function showStatus(msg, type) {
-        const statusReport = document.getElementById('statusReport');
-        statusReport.style.display = 'block';
-        statusReport.className = `status-box status-${type}`;
-        statusReport.innerHTML = msg;
-    }
-
-    // Initialize pricing on window configuration mount
-    window.onload = handleCurrencyChange;
-</script>
+        
+        function showStatus(msg, type) {
+            const statusReport = document.getElementById('statusReport');
+            statusReport.style.display = 'block';
+            statusReport.className = `status-box status-${type}`;
+            statusReport.innerHTML = msg;
+        }
+        
+        // Initialize pricing on window configuration mount
+        window.onload = handleCurrencyChange;
+    </script>
 </body>
 </html>

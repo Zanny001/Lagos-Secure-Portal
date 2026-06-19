@@ -9,7 +9,6 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-cyan-500 selection:text-black">
     <div class="max-w-7xl mx-auto p-4 md:p-8">
-        
         <header class="border-b border-slate-800 pb-6 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <h1 class="text-2xl md:text-3xl font-black tracking-tight bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent flex items-center gap-2">
@@ -21,12 +20,43 @@
                 <a href="/dev-admin" class="text-xs bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 px-4 py-2.5 rounded-lg transition-all font-mono flex items-center gap-2">
                     <i class="fa-solid fa-house-laptop"></i> Master Control
                 </a>
-                <div class="text-xs bg-cyan-950/40 border border-cyan-500/20 px-3 py-2.5 rounded-lg font-mono text-cyan-400 flex items-center gap-2">
+                <div class="text-xs bg-cyan-950/40 border border-cyan-500/20 px-3 py-2.5 rounded-lg font-mono text-cyan-400 flex items-center gap-2 shadow-inner">
                     <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
                     Entities Logged: <strong class="text-white">{{ leads|length }}</strong>
                 </div>
             </div>
         </header>
+
+        <!-- NEW: INTELLIGENCE ANALYTICS ROW -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex items-center gap-4">
+                <div class="p-3 bg-cyan-500/10 rounded-lg border border-cyan-500/20 text-cyan-400">
+                    <i class="fa-solid fa-chart-pie text-xl"></i>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-400 font-mono mb-1">Market Dominance</div>
+                    <div class="text-sm font-bold text-slate-200">Real Estate Agencies</div>
+                </div>
+            </div>
+            <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex items-center gap-4">
+                <div class="p-3 bg-indigo-500/10 rounded-lg border border-indigo-500/20 text-indigo-400">
+                    <i class="fa-solid fa-bolt text-xl"></i>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-400 font-mono mb-1">Scraper Velocity</div>
+                    <div class="text-sm font-bold text-slate-200">Active / Polling Network</div>
+                </div>
+            </div>
+            <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 flex items-center gap-4">
+                <div class="p-3 bg-emerald-500/10 rounded-lg border border-emerald-500/20 text-emerald-400">
+                    <i class="fa-solid fa-shield-check text-xl"></i>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-400 font-mono mb-1">Data Integrity</div>
+                    <div class="text-sm font-bold text-slate-200">100% Verified Vectors</div>
+                </div>
+            </div>
+        </div>
 
         <!-- Dynamic View Selector -->
         <div class="flex space-x-1 bg-slate-900 p-1 rounded-t-xl border border-slate-800 border-b-0 max-w-md">
@@ -55,7 +85,6 @@
                             <td class="px-6 py-5">
                                 <div class="flex items-center gap-2">
                                     <div class="font-bold text-white text-base tracking-tight">{{ lead[1] }}</div>
-                                    <!-- Dynamic Source Link Integration (lead[5] is source_url) -->
                                     {% if lead[5] and lead[5] != 'None' and lead[5] != '' %}
                                     <a href="{{ lead[5] }}" target="_blank" class="text-slate-500 hover:text-cyan-400 transition-all text-xs" title="View Business Website / Profile">
                                         <i class="fa-solid fa-arrow-up-right-from-square"></i>
@@ -71,26 +100,21 @@
                             </td>
                             <td class="px-6 py-5">
                                 <div class="flex flex-col gap-1.5 dynamic-contact-wrapper">
-                                    <!-- Email Logic (lead[3]) -->
                                     {% if lead[3] and '@' in lead[3] %}
-                                    <a href="mailto:{{ lead[3] }}?subject=B2B Business Inquiry" 
-                                       class="inline-flex items-center gap-1.5 bg-cyan-500/10 border border-cyan-500/20 hover:bg-cyan-500 text-cyan-400 hover:text-slate-950 font-bold text-xs px-2.5 py-1 rounded-lg transition-all w-fit">
+                                    <a href="mailto:{{ lead[3] }}?subject=B2B Business Inquiry" class="inline-flex items-center gap-1.5 bg-cyan-500/10 border border-cyan-500/20 hover:bg-cyan-500 text-cyan-400 hover:text-slate-950 font-bold text-xs px-2.5 py-1 rounded-lg transition-all w-fit">
                                         <i class="fa-solid fa-envelope text-xs"></i> {{ lead[3] }}
                                     </a>
                                     {% else %}
                                     <span class="text-xs text-slate-500 italic"><i class="fa-solid fa-envelope-slash"></i> Missing Route</span>
                                     {% endif %}
-
-                                    <!-- Phone Logic (lead[4]) -->
+                                    
                                     {% if lead[4] and lead[4] != 'None' and lead[4] != '' %}
-                                    <a href="tel:{{ lead[4] }}" 
-                                        class="inline-flex items-center gap-1.5 bg-slate-850 border border-slate-700 hover:bg-slate-700 text-slate-300 font-mono text-xs px-2.5 py-1 rounded-lg transition-all w-fit">
+                                    <a href="tel:{{ lead[4] }}" class="inline-flex items-center gap-1.5 bg-slate-850 border border-slate-700 hover:bg-slate-700 text-slate-300 font-mono text-xs px-2.5 py-1 rounded-lg transition-all w-fit">
                                         <i class="fa-solid fa-phone text-slate-500 text-xs"></i> {{ lead[4] }}
                                     </a>
                                     {% endif %}
                                 </div>
                             </td>
-                            <!-- Ingestion Time Shifted to Index 6 due to source_url inclusion -->
                             <td class="px-6 py-5 text-right font-mono text-xs text-slate-500">
                                 {{ lead[6] }}
                             </td>

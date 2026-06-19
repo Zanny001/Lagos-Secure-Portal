@@ -1,108 +1,117 @@
 import os
 import re
 import requests
+import time
 from bs4 import BeautifulSoup
 
-# The exact endpoint defined in your Flask app
 API_ENDPOINT = "http://127.0.0.1:5001/harvester/leads/ingest"
-
-# --- THE UPGRADE: Authentication & Session Headers ---
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-    # Paste your active session cookie below if you hit a login wall
-    "Cookie": "PHPSESSID=your_extracted_session_cookie_here;" 
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
 }
 
-# Mock HTML simulation layout matching public real estate listings structure
-MOCK_WEB_PAGE_HTML = """
-<html>
-    <body>
-        <div class="property-listing-card">
-            <h2 class="listing-title">Luxury 4 Bedroom Detached Duplex</h2>
-            <p class="listing-zone">Lekki, Lagos</p>
-            <span class="price-tag">₦ 120,000,000</span>
-            <div class="agent-contact">Contact: 08031112233 - Ref: ZN-09</div>
-        </div>
-        <div class="property-listing-card">
-            <h2 class="listing-title">Fully Serviced 3 Bedroom Apartment</h2>
-            <p class="listing-zone">Ikoyi, Lagos</p>
-            <span class="price-tag">₦ 195,000,000</span>
-            <div class="agent-contact">Contact: 08034445566 - Ref: ZN-12</div>
-        </div>
-    </body>
-</html>
-"""
-
 def extract_clean_numeric_price(price_text):
-    """Cleans raw web strings like '₦ 120,000,000' into standard database floats."""
-    cleaned = re.sub(r'[^\d]', '', price_text)
-    return float(cleaned) if cleaned else 0.0
+    if not price_text: return 0.0
+    is_usd = '$' in price_text or 'USD' in price_text.upper()
+    match = re.search(r'[\d,\.]+', price_text)
+    if not match: return 0.0
+    raw_num_str = match.group(0).replace(',', '').rstrip('.')
+    try: numeric_value = float(raw_num_str)
+    except ValueError: numeric_value = 0.0
+    if is_usd: numeric_value *= 1500.0
+    return numeric_value
+
+def fetch_deep_contact_info(source_url):
+    try:
+        response = requests.get(source_url, headers=HEADERS, timeout=10)
+        if response.status_code == 200:
+            phone_match = re.search(r'\b(?:234|0)[789][01]\d{8}\b', response.text)
+            if phone_match: return phone_match.group(0)
+    except Exception: pass
+    return "Contact Not Discovered"
 
 def push_to_pipeline(prop_type, loc, price_ngn, contact_info, source_url):
-    """Packages the scraped data into the exact JSON format your Flask API expects."""
     phone_match = re.search(r'0[789][01]\d{8}', contact_info)
     phone = phone_match.group(0) if phone_match else contact_info
-
+    
     payload = {
         "property_type": prop_type,
         "location": loc,
         "price_ngn": price_ngn,
         "phone": phone,
-        "email": "agent@zannie.com", 
+        "email": "agent@zannie.com",
         "source_url": source_url
     }
-
+    
     try:
         res = requests.post(API_ENDPOINT, json=payload, timeout=5)
-        print(f"[API PUSH] Status {res.status_code} | {prop_type} -> Pipeline synchronized.")
-    except Exception as e:
-        print(f"[API ERROR] Failed to hit local Flask endpoint: {e}")
+        return True if res.status_code in [200, 201] else False
+    except Exception:
+        return False
 
 def fetch_live_page(target_url):
-    """Fetches real HTML from the target site using our auth headers."""
     try:
-        response = requests.get(target_url, headers=HEADERS, timeout=10)
+        response = requests.get(target_url, headers=HEADERS, timeout=15)
         response.raise_for_status()
         return response.text
-    except Exception as e:
-        print(f"[NETWORK ERROR] Could not fetch live page: {e}")
+    except Exception:
         return None
 
-def run_scraper_extraction(use_live_data=False, target_url=""):
-    """Parses structural HTML and passes elements down the API pipeline."""
-    print("Initializing parsing matrix on structural web assets...")
+def run_scraper_extraction(base_url, max_pages=5):
+    print("==================================================")
+    print(f"[*] INITIALIZING DEEP HARVEST: TARGETING {max_pages} PAGES")
+    print("==================================================")
     
-    if use_live_data and target_url:
+    total_harvested = 0
+    for page_num in range(1, max_pages + 1):
+        target_url = f"{base_url}?page={page_num}" if page_num > 1 else base_url
+        print(f"\n[PAGE {page_num}] Scanning Index: {target_url}")
+        
         html_content = fetch_live_page(target_url)
-        if not html_content:
-            return
-    else:
-        html_content = MOCK_WEB_PAGE_HTML
-
-    soup = BeautifulSoup(html_content, 'html.parser')
-
-    # Update these class names when targeting the live website's structure
-    cards = soup.find_all('div', class_='property-listing-card')
-    print(f"Identified {len(cards)} data elements for processing.\n")
-
-    for i, card in enumerate(cards):
-        title_element = card.find('h2', class_='listing-title')
-        zone_element = card.find('p', class_='listing-zone')
-        price_element = card.find('span', class_='price-tag')
-        contact_element = card.find('div', class_='agent-contact')
-
-        if title_element and zone_element and price_element:
-            property_type = title_element.text.strip()
-            location = zone_element.text.strip()
-            raw_price = price_element.text.strip()
-            contact_info = contact_element.text.replace('Contact:', '').strip() if contact_element else "N/A"
-
-            price_ngn = extract_clean_numeric_price(raw_price)
-            mock_source_url = f"https://www.propertypro.ng/listing/zannie-mock-prop-{i+1}"
-
-            push_to_pipeline(property_type, location, price_ngn, contact_info, mock_source_url)
+        if not html_content: continue
+        
+        soup = BeautifulSoup(html_content, 'html.parser')
+        title_blocks = soup.find_all('div', class_='pl-title')
+        if not title_blocks: break
+        
+        print(f"[*] Identified {len(title_blocks)} blocks. Initiating deep extraction...")
+        
+        page_success = 0
+        for title_block in title_blocks:
+            h3_tag = title_block.find('h3')
+            a_tag = h3_tag.find('a') if h3_tag else None
+            p_tag = title_block.find('p')
+            
+            parent_box = title_block.find_parent('div')
+            price_tag = parent_box.find(class_=re.compile(r'price|listings-price|amt')) if parent_box else None
+            
+            if a_tag and p_tag:
+                property_type = a_tag.text.strip()
+                location = p_tag.text.strip()
+                raw_url = a_tag['href']
+                source_url = raw_url if raw_url.startswith('http') else f"https://www.propertypro.ng{raw_url}"
+                
+                raw_price = price_tag.text.strip() if price_tag else "₦ 0"
+                price_ngn = extract_clean_numeric_price(raw_price)
+                
+                print(f"    -> Crawling detailed listing: {property_type[:30]}...")
+                contact_info = fetch_deep_contact_info(source_url)
+                
+                success = push_to_pipeline(property_type, location, price_ngn, contact_info, source_url)
+                if success:
+                    page_success += 1
+                    total_harvested += 1
+                
+                time.sleep(1.5)
+        
+        print(f"[+] Page {page_num} deep harvest complete.")
+        if page_num < max_pages: time.sleep(3)
+        
+    print("\n==================================================")
+    print(f"[*] DEEP HARVEST COMPLETE: {total_harvested} enriched leads saved.")
+    print("==================================================")
 
 if __name__ == "__main__":
-    # Toggle 'use_live_data=True' and provide the real URL when you are ready to hit the live site
-    run_scraper_extraction(use_live_data=False)
-
+    LIVE_TARGET_URL = "https://www.propertypro.ng/property-for-sale/in/lagos"
+    run_scraper_extraction(base_url=LIVE_TARGET_URL, max_pages=5)

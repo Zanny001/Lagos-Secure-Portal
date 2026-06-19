@@ -1,4 +1,3 @@
-
 import os
 import sys
 import time
@@ -8,13 +7,13 @@ from datetime import datetime
 # Configuration parameters
 INTERVAL_SECONDS = 1800  # 30 Minutes loop cycle
 CRAWLER_SCRIPT = "realestate_scraper.py"
-LOG_FILE = "daemon_harvest.log"
+LOG_FILE = "daemon_runtime.log"  # UPGRADE: Matched to the UI streaming engine
 
 def log_message(message):
     """Writes a timestamped entry to the local daemon execution log file."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_entry = f"[{timestamp}] {message}\n"
-    print(log_entry.strip())
+    print(log_entry.strip(), flush=True)  # UPGRADE: flush=True pushes data instantly to the browser
     with open(LOG_FILE, "a", encoding="utf-8") as log:
         log.write(log_entry)
 
@@ -26,7 +25,7 @@ def run_harvester_cycle():
     if not os.path.exists(script_path):
         log_message(f"[CRITICAL ERROR] Target script '{CRAWLER_SCRIPT}' not found at {script_path}")
         return False
-
+        
     log_message(f"[*] Starting background execution cycle for {CRAWLER_SCRIPT}...")
     
     try:
@@ -69,4 +68,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
