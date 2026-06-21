@@ -20,7 +20,6 @@ lxml==6.0.2
 soupsieve==2.8.3
 tqdm==4.67.3
 numpy==2.3.5
-pandas==2.2.2
 
 # Database Adapters
 psycopg2-binary==2.9.12
