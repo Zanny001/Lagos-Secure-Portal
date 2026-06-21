@@ -3,90 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zannie Design Studio | AI Apparel Generator</title>
+    <title>Zannie Design Studio Pro | Inpainting Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .canvas-container { position: relative; display: inline-block; max-width: 100%; }
+        #paintCanvas { position: absolute; top: 0; left: 0; cursor: crosshair; mix-blend-mode: screen; opacity: 0.6; }
+    </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
-    <div class="max-w-5xl mx-auto p-4 md:p-8">
+    <div class="max-w-6xl mx-auto p-4 md:p-8">
         
         <header class="border-b border-fuchsia-500/30 pb-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-fuchsia-400 to-pink-500 bg-clip-text text-transparent">
-                    <i class="fa-solid fa-wand-magic-sparkles mr-2 text-fuchsia-400"></i>Zannie Design Studio
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2 text-fuchsia-400"></i>Zannie Design Studio Pro
                 </h1>
-                <p class="text-sm text-slate-400 mt-1">Professional AI generation engine for high-quality fashion concepts.</p>
+                <p class="text-sm text-slate-400 mt-1">Advanced Canvas Inpainting & Negative Masking Engine</p>
             </div>
-            <div class="flex gap-4 items-center">
-                <a href="/dev-admin" class="text-sm bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 px-4 py-2 rounded-md transition-colors font-mono">← Master Control</a>
-            </div>
+            <a href="/dev-admin" class="text-sm bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-300 px-4 py-2 rounded-md font-mono">← Master Control</a>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div class="md:col-span-1 bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-2xl h-fit">
-                <h2 class="text-sm uppercase tracking-widest font-bold mb-4 text-fuchsia-400 font-mono">Generation Parameters</h2>
-                
-                <div class="mb-4">
-                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Apparel Concept Prompt</label>
-                    <textarea id="promptInput" rows="4" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-slate-200 outline-none focus:border-fuchsia-500 transition-colors" placeholder="e.g., A luxury white linen jalabia with intricate gold filigree embroidery, studio lighting..."></textarea>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <div class="lg:col-span-4 bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-2xl space-y-6 h-fit">
+                <div>
+                    <h2 class="text-xs uppercase tracking-widest font-bold mb-3 text-fuchsia-400 font-mono">1. Source Input</h2>
+                    <label class="block text-xs font-bold text-slate-400 mb-2">REFERENCE IMAGE</label>
+                    <input type="file" id="imageUpload" accept="image/*" class="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-fuchsia-400 hover:file:bg-slate-700 cursor-pointer">
+                </div>
+
+                <div id="maskingControls" class="hidden border-t border-slate-800 pt-4 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-bold text-amber-400 uppercase"><i class="fa-solid fa-paint-brush mr-1"></i> Inpaint Mask Tool</label>
+                        <button onclick="clearMask()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded border border-slate-700">Clear Paint</button>
+                    </div>
+                    <p class="text-[11px] text-slate-400">Brush over the original clothes to mark them for complete replacement.</p>
+                </div>
+
+                <div class="border-t border-slate-800 pt-4">
+                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">2. Target Apparel Concept</label>
+                    <textarea id="promptInput" rows="4" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-sm text-slate-200 outline-none focus:border-fuchsia-500 transition-colors" placeholder="Define the fabric, fit and details to insert into the painted region..."></textarea>
                 </div>
 
                 <button onclick="triggerGeneration()" id="generateBtn" class="w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2">
                     <i class="fa-solid fa-microchip"></i> Synthesize Design
                 </button>
                 
-                <div id="statusConsole" class="mt-4 text-[10px] font-mono text-slate-500 hidden">
-                    Initializing neural rendering...
-                </div>
+                <div id="statusConsole" class="text-[10px] font-mono text-slate-500 bg-slate-950 p-3 rounded border border-slate-800 hidden max-h-32 overflow-y-auto"></div>
             </div>
 
-            <div class="md:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-2xl flex flex-col items-center justify-center min-h-[500px]">
-                <div id="outputCanvas" class="w-full h-full flex flex-col items-center justify-center text-slate-600">
-                    <i class="fa-solid fa-image text-4xl mb-3 opacity-50"></i>
-                    <p class="font-mono text-sm">Awaiting prompt input...</p>
+            <div class="lg:col-span-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-col items-center min-h-[400px]">
+                        <h3 class="text-xs font-mono text-slate-400 mb-3 uppercase self-start"><i class="fa-solid fa-sliders mr-1"></i> Mask Canvas</h3>
+                        <div id="inputWorkspace" class="w-full flex items-center justify-center flex-1 text-slate-600 border border-dashed border-slate-800 rounded-lg p-2">
+                            <p class="text-xs font-mono text-center">Upload a reference image to unlock manual editing canvas</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex flex-col items-center min-h-[400px]">
+                        <h3 class="text-xs font-mono text-slate-400 mb-3 uppercase self-start"><i class="fa-solid fa-wand-magic mr-1"></i> Model Output</h3>
+                        <div id="outputCanvas" class="w-full flex flex-col items-center justify-center flex-1 text-slate-600">
+                            <i class="fa-solid fa-image text-4xl mb-2 opacity-30"></i>
+                            <p class="font-mono text-xs text-center">Awaiting execution...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="actionBar" class="hidden w-full bg-slate-900 border border-slate-800 p-4 rounded-xl flex gap-4 justify-center shadow-lg">
+                    <button onclick="downloadImage()" class="bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-emerald-500/30 px-6 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-download"></i> Download High-Res
+                    </button>
+                    <button onclick="saveToGallery()" id="saveBtn" class="bg-slate-900 hover:bg-slate-800 text-fuchsia-400 border border-fuchsia-500/30 px-6 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-database"></i> Save to Gallery
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        let currentImageData = null;
+        let currentPrompt = null;
+        
+        let baseImageB64 = null;
+        let isDrawing = false;
+        let ctx = null;
+        let paintCanvas = null;
+        let displayImg = null;
+
+        const fileInput = document.getElementById('imageUpload');
+        const workspace = document.getElementById('inputWorkspace');
+        const maskingControls = document.getElementById('maskingControls');
+
+        // Handle File Selection and Build Painting Layers
+        fileInput.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                baseImageB64 = event.target.result;
+                
+                // Construct double-layered markup dynamically
+                workspace.innerHTML = `
+                    <div class="canvas-container" id="containerElement">
+                        <img id="srcImg" src="${baseImageB64}" class="max-w-full max-h-[450px] rounded-lg block">
+                        <canvas id="paintCanvas"></canvas>
+                    </div>
+                `;
+
+                displayImg = document.getElementById('srcImg');
+                paintCanvas = document.getElementById('paintCanvas');
+                ctx = paintCanvas.getContext('2d');
+
+                // Bind canvas bounds exactly to the rendered image bounds when loaded
+                displayImg.onload = function() {
+                    paintCanvas.width = displayImg.clientWidth;
+                    paintCanvas.height = displayImg.clientHeight;
+                    setupCanvasDrawing();
+                    maskingControls.classList.remove('hidden');
+                };
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function setupCanvasDrawing() {
+            // Draw a black transparent background layout initially 
+            // In Vertex AI: Black areas (0.0) remain frozen; White areas (1.0) get modified
+            ctx.fillStyle = "rgba(0, 0, 0, 1)";
+            ctx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+
+            // Configure soft neon brush for UI tracking
+            ctx.strokeStyle = "rgba(255, 255, 255, 1)";
+            ctx.lineWidth = 24;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+
+            // Event Hooks for Drawing Coordinates
+            paintCanvas.addEventListener('mousedown', (e) => { isDrawing = true; draw(e); });
+            paintCanvas.addEventListener('mousemove', draw);
+            paintCanvas.addEventListener('mouseup', () => isDrawing = false);
+            paintCanvas.addEventListener('mouseleave', () => isDrawing = false);
+
+            // Touch Compatibility for Mobile/Termux UI Environments
+            paintCanvas.addEventListener('touchstart', (e) => { isDrawing = true; drawTouch(e); });
+            paintCanvas.addEventListener('touchmove', drawTouch);
+            paintCanvas.addEventListener('touchend', () => isDrawing = false);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = paintCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        function drawTouch(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const rect = paintCanvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        function clearMask() {
+            if(!ctx) return;
+            ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+            ctx.fillStyle = "rgba(0, 0, 0, 1)";
+            ctx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+            ctx.beginPath();
+        }
+
         async function triggerGeneration() {
             const prompt = document.getElementById('promptInput').value;
             const btn = document.getElementById('generateBtn');
             const consoleOut = document.getElementById('statusConsole');
             const canvas = document.getElementById('outputCanvas');
+            const actionBar = document.getElementById('actionBar');
 
-            if (!prompt) return alert("Please define an apparel concept first.");
+            if (!prompt) return alert("Please specify an apparel direction.");
 
-            // UI Loading State
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Rendering...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Synthesizing...';
             btn.disabled = true;
             consoleOut.classList.remove('hidden');
-            consoleOut.innerText = "[*] Dispatching payload to AI pipeline...";
-            canvas.innerHTML = '<div class="animate-pulse flex flex-col items-center"><div class="w-64 h-96 bg-slate-800 rounded-lg border border-slate-700"></div><p class="text-xs text-fuchsia-400 font-mono mt-4">Synthesizing fabric textures...</p></div>';
+            consoleOut.innerText = "[*] Parsing canvas spatial vectors...";
+            actionBar.classList.add('hidden');
+            canvas.innerHTML = '<div class="animate-pulse flex flex-col items-center"><div class="w-56 h-72 bg-slate-800 rounded-lg border border-slate-700"></div><p class="text-xs text-fuchsia-400 font-mono mt-4">Replacing target layers...</p></div>';
 
             try {
+                let payload = { prompt: prompt };
+                
+                if (baseImageB64) {
+                    payload.image = baseImageB64;
+                    // Export the drawn mask canvas to raw base64 data string
+                    payload.mask = paintCanvas.toDataURL("image/png");
+                    consoleOut.innerText += "\n[*] Packaged references successfully.";
+                }
+
                 const response = await fetch('/zannie/api/generate-design', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: prompt })
+                    body: JSON.stringify(payload)
                 });
 
                 const data = await response.json();
 
                 if (data.status === 'success') {
-                    consoleOut.innerText = "[+] Render complete. Displaying asset.";
-                    consoleOut.classList.replace('text-slate-500', 'text-emerald-400');
-                    canvas.innerHTML = `<img src="${data.image_url}" alt="Generated Design" class="rounded-lg shadow-2xl max-h-[600px] border border-slate-700">`;
+                    currentImageData = data.image_url;
+                    currentPrompt = data.prompt_used;
+                    
+                    consoleOut.innerText += "\n[+] Vertex pipeline compiled target matrix successfully.";
+                    canvas.innerHTML = `<img src="${currentImageData}" alt="Inpainted Design" class="rounded-lg shadow-2xl max-h-[450px] border border-slate-700">`;
+                    actionBar.classList.remove('hidden');
                 } else {
-                    consoleOut.innerText = `[-] Pipeline Error: ${data.message}`;
-                    consoleOut.classList.replace('text-slate-500', 'text-rose-400');
+                    consoleOut.innerText += `\n[-] Refusal: ${data.message}`;
                 }
             } catch (error) {
-                consoleOut.innerText = "[-] Network fault connecting to generation endpoint.";
-                consoleOut.classList.replace('text-slate-500', 'text-rose-400');
+                consoleOut.innerText += "\n[-] Pipeline failure across endpoints.";
             } finally {
                 btn.innerHTML = '<i class="fa-solid fa-microchip"></i> Synthesize Design';
+                btn.disabled = false;
+            }
+        }
+
+        function downloadImage() {
+            if (!currentImageData) return;
+            const link = document.createElement('a');
+            link.href = currentImageData;
+            link.download = `Zannie_Inpaint_${Date.now()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function saveToGallery() {
+            if (!currentImageData || !currentPrompt) return;
+            const btn = document.getElementById('saveBtn');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preserving...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/zannie/api/save-design', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: currentPrompt, image_url: currentImageData })
+                });
+                
+                const data = await response.json();
+                if(data.status === 'success') {
+                    btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> Saved to Database';
+                } else {
+                    alert('Fault: ' + data.message);
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                alert('Network exception.');
+                btn.innerHTML = originalHtml;
                 btn.disabled = false;
             }
         }
