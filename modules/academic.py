@@ -7,13 +7,11 @@ import markdown
 from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, abort, send_file
 from config import ACADEMIC_DB, DISCORD_WEBHOOK_URL
-from fpdf import FPDF 
+from fpdf import FPDF
 
-academic_bp = Blueprint('academic', __name__) 
-
+academic_bp = Blueprint('academic', __name__)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SYLLABUS_DIR = os.path.join(BASE_DIR, "academic_syllabus") 
-
+SYLLABUS_DIR = os.path.join(BASE_DIR, "academic_syllabus")
 PHYSICS_ANSWER_KEY = {
     1: {"question": "What are the fundamental dimensions of Force?", "topic": "Dimensions & Units", "correct": "A", "options": {"A": "MLT⁻²", "B": "ML²T⁻²", "C": "MLT⁻¹", "D": "M²LT⁻²"}},
     2: {"question": "Which of the following is a pure scalar quantity?", "topic": "Mechanics Core", "correct": "C", "options": {"A": "Weight", "B": "Velocity", "C": "Mass", "D": "Acceleration"}},
@@ -25,29 +23,26 @@ PHYSICS_ANSWER_KEY = {
     8: {"question": "An object drops freely from a height. Its kinetic energy reaches its maximum point at:", "topic": "Mechanics Core", "correct": "A", "options": {"A": "Just before hitting the ground", "B": "The precise halfway point", "C": "The starting release point", "D": "Varies unpredictably"}},
     9: {"question": "Which of the following physical quantities is completely dimensionless?", "topic": "Dimensions & Units", "correct": "B", "options": {"A": "Acceleration", "B": "Refractive Index", "C": "Density", "D": "Speed"}},
     10: {"question": "The angular velocity of a particle moving in a circle of radius 2m with a linear speed of 10m/s is:", "topic": "Circular Motion", "correct": "D", "options": {"A": "20 rad/s", "B": "0.2 rad/s", "C": "2 rad/s", "D": "5 rad/s"}}
-} 
+}
 
 class AcademicPDF(FPDF):
     def header(self):
         self.set_font("Helvetica", "B", 10)
         self.set_text_color(100, 116, 139)
         self.cell(0, 10, "Zannie Academic Portal — STEM Instructional Resource", ln=True, align="R")
-        self.ln(5) 
-
+        self.ln(5)
     def footer(self):
         self.set_y(-15)
         self.set_font("Helvetica", "I", 8)
         self.set_text_color(148, 163, 184)
-        self.cell(0, 10, f"Page {self.page_no()}", align="C") 
+        self.cell(0, 10, f"Page {self.page_no()}", align="C")
 
 def get_db_connection():
-    """Dynamic multi-dialect driver router."""
     db_target = str(ACADEMIC_DB)
     if db_target.startswith("postgresql://") or db_target.startswith("postgres://"):
         import psycopg2
         return psycopg2.connect(db_target), True
     else:
-        # Resolve absolute local path blocks
         if os.environ.get('VERCEL'):
             db_path = os.path.join('/tmp', os.path.basename(db_target))
         else:
@@ -57,8 +52,7 @@ def get_db_connection():
 def dispatch_report_card_webhook(student_name, score, percentage, remarks, topic_breakdown):
     breakdown_msg = ""
     for k, v in topic_breakdown.items():
-        breakdown_msg += f"🔹 **{k}**: `{v['correct']}/{v['total']}` ({v['pct']}%)\n" 
-
+        breakdown_msg += f"🔹 **{k}**: `{v['correct']}/{v['total']}` ({v['pct']}%)\n"
     payload = {
         "embeds": [{
             "title": "📊 NEW PERFORMANCE ASSESSMENT RECORD LOGGED",
@@ -74,41 +68,40 @@ def dispatch_report_card_webhook(student_name, score, percentage, remarks, topic
     try:
         requests.post(DISCORD_WEBHOOK_URL, json=payload, timeout=5)
     except Exception:
-        pass 
+        pass
 
 @academic_bp.route("/", methods=["GET", "POST"])
 def academic_dashboard_index():
     if request.method == "POST":
         student_name = request.form.get("student_name", "").strip().upper()
         score = 0
-        topic_performance = {} 
+        topic_performance = {}
 
         for q_id, info in PHYSICS_ANSWER_KEY.items():
             topic = info["topic"]
             if topic not in topic_performance:
                 topic_performance[topic] = {"correct": 0, "total": 0}
-            topic_performance[topic]["total"] += 1 
+            topic_performance[topic]["total"] += 1
 
             user_choice = request.form.get(f"q_{q_id}", "").strip().upper()
             if user_choice == info["correct"]:
                 score += 1
-                topic_performance[topic]["correct"] += 1 
+                topic_performance[topic]["correct"] += 1
 
         for t_name, tracking_obj in topic_performance.items():
-            tracking_obj["pct"] = int((tracking_obj["correct"] / tracking_obj["total"]) * 100) 
+            tracking_obj["pct"] = int((tracking_obj["correct"] / tracking_obj["total"]) * 100)
 
-        percentage = int((score / len(PHYSICS_ANSWER_KEY)) * 100) 
-
+        percentage = int((score / len(PHYSICS_ANSWER_KEY)) * 100)
         now = datetime.now()
         current_time_str = now.strftime("%Y-%m-%d %H:%M:%S")
-        current_date_str = now.strftime("%Y-%m-%d") 
+        current_date_str = now.strftime("%Y-%m-%d")
 
         if percentage >= 85:
             remarks = "Excellent evaluation profile. Outstanding mastery observed across tracks."
         elif percentage >= 70:
             remarks = "Competent performance standard. Good retention stability across target core vectors."
         else:
-            remarks = "Targeted instructional review sessions recommended to build consistency." 
+            remarks = "Targeted instructional review sessions recommended to build consistency."
 
         try:
             conn, is_postgres = get_db_connection()
@@ -118,17 +111,13 @@ def academic_dashboard_index():
             conn.commit()
             conn.close()
         except Exception:
-            pass 
+            pass
 
-        dispatch_report_card_webhook(student_name, score, percentage, remarks, topic_performance) 
+        dispatch_report_card_webhook(student_name, score, percentage, remarks, topic_performance)
+        report = {"name": student_name, "score": score, "pct": percentage, "remarks": remarks, "breakdown": topic_performance, "time": current_time_str}
+        return render_template("academic.html", report=report)
 
-        report = {
-            "name": student_name, "score": score, "pct": percentage,
-            "remarks": remarks, "breakdown": topic_performance, "time": current_time_str
-        }
-        return render_template("academic.html", report=report) 
-
-    return render_template("academic.html", questions=PHYSICS_ANSWER_KEY, report=None) 
+    return render_template("academic.html", questions=PHYSICS_ANSWER_KEY, report=None)
 
 @academic_bp.route('/syllabus')
 def syllabus_index():
@@ -143,64 +132,44 @@ def syllabus_index():
                     if os.path.isdir(level_path) and not level.startswith('.'):
                         files = [f for f in os.listdir(level_path) if f.endswith('.md')]
                         tree[subject][level] = files
-    return render_template("syllabus_browser.html", tree=tree) 
+    return render_template("syllabus_browser.html", tree=tree)
 
 @academic_bp.route('/syllabus/view/<subject>/<level>/<filename>')
 def view_syllabus_file(subject, level, filename):
     target_path = os.path.abspath(os.path.join(SYLLABUS_DIR, subject, level, filename))
-    safe_base = os.path.abspath(SYLLABUS_DIR) 
-
+    safe_base = os.path.abspath(SYLLABUS_DIR)
     if not target_path.startswith(safe_base) or not os.path.exists(target_path):
-        abort(404, description="Requested academic asset out of scope or missing.") 
-
+        abort(404, description="Requested academic asset out of scope or missing.")
     with open(target_path, 'r', encoding='utf-8') as f:
-        md_content = f.read() 
-
-    html_content = markdown.markdown(md_content, extensions=['fenced_code', 'tables']) 
-
-    return render_template(
-        "syllabus_viewer.html",
-        content=html_content,
-        title=filename.replace('_template.md', '').replace('_', ' ').title(),
-        subject=subject,
-        level=level,
-        filename=filename
-    ) 
+        md_content = f.read()
+    html_content = markdown.markdown(md_content, extensions=['fenced_code', 'tables'])
+    return render_template("syllabus_viewer.html", content=html_content, title=filename.replace('_template.md', '').replace('_', ' ').title(), subject=subject, level=level, filename=filename)
 
 @academic_bp.route('/syllabus/download/<subject>/<level>/<filename>')
 def download_syllabus_pdf(subject, level, filename):
-    """Compiles the target Markdown worksheet directly into a dynamic PDF memory byte array."""
     target_path = os.path.abspath(os.path.join(SYLLABUS_DIR, subject, level, filename))
-    safe_base = os.path.abspath(SYLLABUS_DIR) 
-
+    safe_base = os.path.abspath(SYLLABUS_DIR)
     if not target_path.startswith(safe_base) or not os.path.exists(target_path):
-        abort(404) 
-
+        abort(404)
     with open(target_path, 'r', encoding='utf-8') as f:
-        lines = f.readlines() 
-
+        lines = f.readlines()
     pdf = AcademicPDF()
-    pdf.add_page() 
-
+    pdf.add_page()
     pdf.set_font("Helvetica", "B", 20)
     pdf.set_text_color(30, 41, 59)
     clean_title = filename.replace('_template.md', '').replace('_', ' ').title()
-    pdf.cell(0, 12, clean_title, ln=True) 
-
+    pdf.cell(0, 12, clean_title, ln=True)
     pdf.set_font("Helvetica", "B", 10)
     pdf.set_text_color(79, 70, 229)
     pdf.cell(0, 6, f"TRACK: {subject.upper()} | LEVEL: {level.replace('_', ' ').upper()}", ln=True)
-    pdf.ln(8) 
-
+    pdf.ln(8)
     pdf.set_font("Helvetica", "", 11)
-    pdf.set_text_color(51, 65, 85) 
-
+    pdf.set_text_color(51, 65, 85)
     for line in lines:
         cleaned_line = line.strip()
         if not cleaned_line:
             pdf.ln(4)
-            continue 
-
+            continue
         if cleaned_line.startswith("###"):
             pdf.ln(4)
             pdf.set_font("Helvetica", "B", 12)
@@ -217,9 +186,8 @@ def download_syllabus_pdf(subject, level, filename):
             pdf.set_text_color(51, 65, 85)
         else:
             text = cleaned_line.replace("**", "").replace("*", "").replace("`", "")
-            pdf.multi_cell(0, 6, text) 
+            pdf.multi_cell(0, 6, text)
 
-    # Generate directly to memory buffer to pass Vercel write protections
     pdf_buffer = io.BytesIO()
     pdf_string = pdf.output(dest='S')
     if isinstance(pdf_string, str):
@@ -227,9 +195,8 @@ def download_syllabus_pdf(subject, level, filename):
     else:
         pdf_buffer.write(pdf_string)
     pdf_buffer.seek(0)
-
     output_filename = filename.replace('.md', '.pdf')
-    return send_file(pdf_buffer, as_attachment=True, download_name=output_filename, mimetype='application/pdf') 
+    return send_file(pdf_buffer, as_attachment=True, download_name=output_filename, mimetype='application/pdf')
 
 @academic_bp.route("/api/academic_data", methods=["GET"])
 def get_academic_analytics():
@@ -238,15 +205,14 @@ def get_academic_analytics():
         cursor = conn.cursor()
         cursor.execute("SELECT student_name, subject, score FROM grades")
         rows = cursor.fetchall()
-        conn.close() 
+        conn.close()
 
         raw_map = {}
         for row in rows:
             student, subject, score = row
             if subject not in raw_map: raw_map[subject] = {}
             if student not in raw_map[subject]: raw_map[subject][student] = []
-            raw_map[subject][student].append(score) 
-
+            raw_map[subject][student].append(score)
         track_resolver = {"TWIN A": "IGCSE Core", "TWIN B": "IGCSE Core", "DEMI": "WAEC Tracker", "FEMI": "Int Foundation Programme"}
         payload_response = {}
         for subject, students_dict in raw_map.items():
@@ -263,7 +229,7 @@ def get_academic_analytics():
                 })
         return jsonify(payload_response)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500 
+        return jsonify({"error": str(e)}), 500
 
 @academic_bp.route("/api/scores/add", methods=["POST", "OPTIONS"])
 def add_manual_grade_entry():
@@ -274,7 +240,6 @@ def add_manual_grade_entry():
         subject = data.get("subject")
         score = data.get("score")
         date = data.get("date")
-        
         conn, is_postgres = get_db_connection()
         cursor = conn.cursor()
         query = "INSERT INTO grades (student_name, subject, score, record_date) VALUES (%s, %s, %s, %s)" if is_postgres else "INSERT INTO grades (student_name, subject, score, record_date) VALUES (?, ?, ?, ?)"
@@ -283,7 +248,7 @@ def add_manual_grade_entry():
         conn.close()
         return jsonify({"status": "success", "message": "Grade metric logged seamlessly."}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500 
+        return jsonify({"error": str(e)}), 500
 
 @academic_bp.route("/api/tasks/create", methods=["POST", "OPTIONS"])
 def create_task_blueprint():
@@ -299,3 +264,45 @@ def create_task_blueprint():
         return jsonify({"status": "success", "message": "Task matrix deployed."}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# ==========================================
+# UPGRADE: DYNAMIC CURRICULUM ROUTER
+# ==========================================
+def generate_curriculum(subject, level):
+    if subject.lower() == "physics":
+        content = f"# {level.upper()} Curriculum: Applied Physics\n\n**Core Topics:** Kinematics, Thermodynamics, and Quantum Mechanics.\n\n* Q1. Calculate the final velocity of an object accelerating at 9.8m/s².\n* Q2. Explain the laws of thermodynamics."
+    elif subject.lower() == "mathematics":
+        content = f"# {level.upper()} Curriculum: Advanced Mathematics\n\n**Core Topics:** Calculus, Trigonometry, and Algebra.\n\n* Q1. Find the derivative of $f(x) = 3x^2 + 2x$.\n* Q2. Solve for x: $2\\sin(x) = 1$."
+    elif subject.lower() == "statistics":
+        content = f"# {level.upper()} Curriculum: Data & Statistics\n\n**Core Topics:** Probability, Distributions, and Variance.\n\n* Q1. Calculate the standard deviation of the given dataset.\n* Q2. Explain the Central Limit Theorem."
+    else:
+        content = f"# {level.upper()} Curriculum: {subject.capitalize()}\n\nContent for this subject is currently under development. Please query the database again later."
+    return markdown.markdown(content)
+
+@academic_bp.route('/curriculum/<subject>/<level>', methods=['GET'])
+def render_curriculum(subject, level):
+    html_content = generate_curriculum(subject, level)
+    html_template = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{subject.capitalize()} - {level.upper()}</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            body {{ background-color: #0f172a; color: #f8fafc; font-family: sans-serif; padding: 2rem; }}
+            .content-box {{ max-width: 800px; margin: 0 auto; background-color: #1e293b; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); }}
+            h1 {{ font-size: 2rem; font-weight: bold; color: #a78bfa; margin-bottom: 1rem; }}
+            h2, h3 {{ color: #cbd5e1; margin-top: 1.5rem; }}
+            p, li {{ color: #94a3b8; line-height: 1.6; margin-bottom: 0.5rem; }}
+        </style>
+    </head>
+    <body>
+        <div class="content-box">
+            {html_content}
+        </div>
+    </body>
+    </html>
+    """
+    return html_template
