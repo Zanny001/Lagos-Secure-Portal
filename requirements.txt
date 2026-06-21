@@ -25,7 +25,7 @@ numpy==2.3.5
 psycopg2-binary==2.9.12
 gspread==6.2.1
 
-# Institutional AI & Analytics (Studio Core Fix)
+# Institutional AI & Analytics
 google-cloud-aiplatform==1.158.0
 google-genai==2.9.0
 google-api-core==2.31.0
@@ -61,3 +61,4 @@ cffi==2.0.0
 fpdf==1.7.2
 reportlab==4.5.1
 pillow==12.2.0
+Markdown==3.10.2
