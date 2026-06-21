@@ -53,6 +53,7 @@ grpc-google-iam-v1==0.14.4
 grpcio==1.81.1
 grpcio-status==1.81.1
 gspread==6.2.1
+gunicorn==26.0.0
 gyp-next==0.16.2
 h11==0.16.0
 h2==4.3.0

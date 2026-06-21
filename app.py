@@ -23,6 +23,7 @@ from modules.scholarships import scholarships_bp
 from modules.admin import admin_bp
 from modules.studio import studio_bp 
 from modules.api_gateway import api_bp # <-- UPGRADE: Institutional API Gateway
+from modules.dashboard import dashboard_bp
 
 app = Flask(__name__)
 
@@ -112,6 +113,7 @@ app.register_blueprint(harvester_bp, url_prefix='/harvester')
 app.register_blueprint(scholarships_bp, url_prefix='/scholarships')
 app.register_blueprint(studio_bp, url_prefix='/zannie') 
 app.register_blueprint(api_bp, url_prefix='/api') # <-- UPGRADE: API Routed
+app.register_blueprint(dashboard_bp)
 
 # ===================================================================
 # PRIMARY ROOT ROUTE: EXTENDED CURRICULUM VIEW

@@ -1,21 +1,33 @@
+# Python Environments & Cache
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
 .Python
 env/
 venv/
+
+# Security & Credentials (CRITICAL)
 .env
 credentials.json
+.db_password
+
+# Ephemeral Databases & Data Dumps
 *.db
+*.sqlite
 *.sqlite3
 *.csv
-*.log
 *.bak
 *.tar.gz
+
+# Runtime Logs
+*.log
+daemon_runtime.log
+crypto_runtime.log
+
+# Node/Frontend Legacy
 node_modules/
 package.json
 package-lock.json
 server.js
-.db_password
+
+# Local Shell Scripts
 start.sh
