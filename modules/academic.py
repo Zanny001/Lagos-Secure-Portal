@@ -6,8 +6,12 @@ import io
 import markdown
 from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, abort, send_file
-from config import ACADEMIC_DB, DISCORD_WEBHOOK_URL
+from config import ACADEMIC_DB, DISCORD_WEBHOOK_URL, GOOGLE_API_KEY
 from fpdf import FPDF
+from google import genai
+
+# Initialize Gemini Client
+client = genai.Client(api_key=GOOGLE_API_KEY)
 
 academic_bp = Blueprint('academic', __name__)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -266,43 +270,40 @@ def create_task_blueprint():
         return jsonify({"error": str(e)}), 500
 
 # ==========================================
-# UPGRADE: DYNAMIC CURRICULUM ROUTER
+# UPGRADE: AI CURRICULUM GENERATOR
 # ==========================================
-def generate_curriculum(subject, level):
-    if subject.lower() == "physics":
-        content = f"# {level.upper()} Curriculum: Applied Physics\n\n**Core Topics:** Kinematics, Thermodynamics, and Quantum Mechanics.\n\n* Q1. Calculate the final velocity of an object accelerating at 9.8m/s².\n* Q2. Explain the laws of thermodynamics."
-    elif subject.lower() == "mathematics":
-        content = f"# {level.upper()} Curriculum: Advanced Mathematics\n\n**Core Topics:** Calculus, Trigonometry, and Algebra.\n\n* Q1. Find the derivative of $f(x) = 3x^2 + 2x$.\n* Q2. Solve for x: $2\\sin(x) = 1$."
-    elif subject.lower() == "statistics":
-        content = f"# {level.upper()} Curriculum: Data & Statistics\n\n**Core Topics:** Probability, Distributions, and Variance.\n\n* Q1. Calculate the standard deviation of the given dataset.\n* Q2. Explain the Central Limit Theorem."
-    else:
-        content = f"# {level.upper()} Curriculum: {subject.capitalize()}\n\nContent for this subject is currently under development. Please query the database again later."
-    return markdown.markdown(content)
+def generate_ai_curriculum(subject, level):
+    prompt = f"Generate 3 rigorous educational practice questions for {level} level {subject}. Include solutions. Format the output in clean Markdown."
+    
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
+        )
+        return markdown.markdown(response.text, extensions=['fenced_code', 'tables'])
+    except Exception as e:
+        return f"# Curriculum Error\nUnable to generate AI content. System returned: {str(e)}"
 
 @academic_bp.route('/curriculum/<subject>/<level>', methods=['GET'])
 def render_curriculum(subject, level):
-    html_content = generate_curriculum(subject, level)
-    html_template = f"""
+    html_content = generate_ai_curriculum(subject, level)
+    return f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8"><script src="https://cdn.tailwindcss.com"></script>
         <title>{subject.capitalize()} - {level.upper()}</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <style>
-            body {{ background-color: #0f172a; color: #f8fafc; font-family: sans-serif; padding: 2rem; }}
-            .content-box {{ max-width: 800px; margin: 0 auto; background-color: #1e293b; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); }}
-            h1 {{ font-size: 2rem; font-weight: bold; color: #a78bfa; margin-bottom: 1rem; }}
-            h2, h3 {{ color: #cbd5e1; margin-top: 1.5rem; }}
-            p, li {{ color: #94a3b8; line-height: 1.6; margin-bottom: 0.5rem; }}
-        </style>
     </head>
-    <body>
-        <div class="content-box">
-            {html_content}
+    <body class="bg-slate-950 text-slate-300 p-10 font-sans leading-relaxed">
+        <div class="max-w-4xl mx-auto bg-slate-900 p-10 rounded-2xl shadow-2xl border border-slate-800">
+            <h1 class="text-3xl font-black text-indigo-400 border-b border-slate-700 pb-4 mb-8">AI-Generated Curriculum: {subject.capitalize()} ({level.upper()})</h1>
+            <div class="prose prose-invert prose-indigo max-w-none">
+                {html_content}
+            </div>
+            <div class="mt-12 pt-6 border-t border-slate-800 text-xs text-slate-600 font-mono text-center">
+                Generated dynamically by Google Gemini via Zannie Matrix Control.
+            </div>
         </div>
     </body>
     </html>
     """
-    return html_template
