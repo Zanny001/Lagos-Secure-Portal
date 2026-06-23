@@ -6,12 +6,18 @@ import io
 import markdown
 from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, abort, send_file
-from config import ACADEMIC_DB, DISCORD_WEBHOOK_URL, GOOGLE_API_KEY
+from config import ACADEMIC_DB, DISCORD_WEBHOOK_URL
 from fpdf import FPDF
 from google import genai
 
-# Initialize Gemini Client
-client = genai.Client(api_key=GOOGLE_API_KEY)
+# UPGRADE: Pull API Key securely from environment variables, avoiding config.py crashes
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
+
+# Initialize Gemini Client (Fails gracefully if key is missing)
+try:
+    client = genai.Client(api_key=GOOGLE_API_KEY)
+except Exception:
+    client = None
 
 academic_bp = Blueprint('academic', __name__)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -273,6 +279,9 @@ def create_task_blueprint():
 # UPGRADE: AI CURRICULUM GENERATOR
 # ==========================================
 def generate_ai_curriculum(subject, level):
+    if not client:
+        return f"# Error\nGoogle API Key missing from environment. Please add GOOGLE_API_KEY to your Render/Vercel dashboard."
+        
     prompt = f"Generate 3 rigorous educational practice questions for {level} level {subject}. Include solutions. Format the output in clean Markdown."
     
     try:
