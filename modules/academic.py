@@ -8,16 +8,6 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, jsonify, abort, send_file
 from config import ACADEMIC_DB, DISCORD_WEBHOOK_URL
 from fpdf import FPDF
-from google import genai
-
-# UPGRADE: Pull API Key securely from environment variables, avoiding config.py crashes
-GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
-
-# Initialize Gemini Client (Fails gracefully if key is missing)
-try:
-    client = genai.Client(api_key=GOOGLE_API_KEY)
-except Exception:
-    client = None
 
 academic_bp = Blueprint('academic', __name__)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,6 +23,28 @@ PHYSICS_ANSWER_KEY = {
     8: {"question": "An object drops freely from a height. Its kinetic energy reaches its maximum point at:", "topic": "Mechanics Core", "correct": "A", "options": {"A": "Just before hitting the ground", "B": "The precise halfway point", "C": "The starting release point", "D": "Varies unpredictably"}},
     9: {"question": "Which of the following physical quantities is completely dimensionless?", "topic": "Dimensions & Units", "correct": "B", "options": {"A": "Acceleration", "B": "Refractive Index", "C": "Density", "D": "Speed"}},
     10: {"question": "The angular velocity of a particle moving in a circle of radius 2m with a linear speed of 10m/s is:", "topic": "Circular Motion", "correct": "D", "options": {"A": "20 rad/s", "B": "0.2 rad/s", "C": "2 rad/s", "D": "5 rad/s"}}
+}
+
+# ==========================================
+# UPGRADE: ZERO-COST LOCAL CURRICULUM BANK
+# ==========================================
+LOCAL_CURRICULUM_BANK = {
+    "physics": {
+        "igcse": """
+### Theme 1: Motion, Forces and Energy
+* **Question 1:** A car accelerates uniformly from rest to a velocity of $20\text{ m/s}$ in $5\text{ seconds}$. Calculate the acceleration and the total distance covered.
+    * *Solution:* * Acceleration $a = \frac{v - u}{t} = \frac{20 - 0}{5} = 4\text{ m/s}^2$.
+        * Distance $s = ut + \frac{1}{2}at^2 = 0 + \frac{1}{2}(4)(5^2) = 50\text{ meters}$.
+* **Question 2:** State the law of conservation of momentum and describe what happens during an inelastic collision.
+    * *Solution:* The total momentum before a collision equals the total momentum after the collision, provided no external forces act. In an inelastic collision, kinetic energy is not conserved, but total momentum remains conserved.
+        """,
+        "waec": """
+### Section A: Mechanics
+* **Question 1:** A projectile is launched with an initial velocity of $50\text{ m/s}$ at an angle of $30^\circ$ to the horizontal. Determine its time of flight and maximum height reached. ($g = 10\text{ m/s}^2$)
+    * *Solution:* * Time of flight $T = \frac{2u\sin\theta}{g} = \frac{2(50)\sin(30^\circ)}{10} = 5\text{ s}$.
+        * Maximum height $H = \frac{u^2\sin^2\theta}{2g} = \frac{50^2 \cdot (0.5)^2}{2(10)} = 31.25\text{ m}$.
+        """
+    }
 }
 
 class AcademicPDF(FPDF):
@@ -275,27 +287,17 @@ def create_task_blueprint():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# ==========================================
-# UPGRADE: AI CURRICULUM GENERATOR
-# ==========================================
-def generate_ai_curriculum(subject, level):
-    if not client:
-        return f"# Error\nGoogle API Key missing from environment. Please add GOOGLE_API_KEY to your Render/Vercel dashboard."
-        
-    prompt = f"Generate 3 rigorous educational practice questions for {level} level {subject}. Include solutions. Format the output in clean Markdown."
-    
-    try:
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt,
-        )
-        return markdown.markdown(response.text, extensions=['fenced_code', 'tables'])
-    except Exception as e:
-        return f"# Curriculum Error\nUnable to generate AI content. System returned: {str(e)}"
-
 @academic_bp.route('/curriculum/<subject>/<level>', methods=['GET'])
 def render_curriculum(subject, level):
-    html_content = generate_ai_curriculum(subject, level)
+    sub_key = subject.lower()
+    lvl_key = level.lower()
+    
+    if sub_key in LOCAL_CURRICULUM_BANK and lvl_key in LOCAL_CURRICULUM_BANK[sub_key]:
+        raw_markdown = LOCAL_CURRICULUM_BANK[sub_key][lvl_key]
+    else:
+        raw_markdown = f"### Asset Matrix Pending\nNo localized curriculum configuration exists yet for **{subject.upper()} ({level.upper()})**."
+
+    html_content = markdown.markdown(raw_markdown, extensions=['fenced_code', 'tables'])
     return f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -305,12 +307,12 @@ def render_curriculum(subject, level):
     </head>
     <body class="bg-slate-950 text-slate-300 p-10 font-sans leading-relaxed">
         <div class="max-w-4xl mx-auto bg-slate-900 p-10 rounded-2xl shadow-2xl border border-slate-800">
-            <h1 class="text-3xl font-black text-indigo-400 border-b border-slate-700 pb-4 mb-8">AI-Generated Curriculum: {subject.capitalize()} ({level.upper()})</h1>
+            <h1 class="text-3xl font-black text-indigo-400 border-b border-slate-700 pb-4 mb-8">Zannie Local Curriculum Engine: {subject.capitalize()} ({level.upper()})</h1>
             <div class="prose prose-invert prose-indigo max-w-none">
                 {html_content}
             </div>
             <div class="mt-12 pt-6 border-t border-slate-800 text-xs text-slate-600 font-mono text-center">
-                Generated dynamically by Google Gemini via Zannie Matrix Control.
+                Served locally with zero network dependencies. Fully operational.
             </div>
         </div>
     </body>
